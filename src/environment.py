@@ -39,11 +39,30 @@ class WerewolfGameEnv:
         if not self.state.is_player_alive(player_id):
             return []
             
+        role = self.state.get_role(player_id)
+        
+        # 根据不同阶段和角色返回合法动作
         if self.current_phase == GamePhase.NIGHT_WEREWOLF:
-            if self.state.get_role(player_id) == Roles.WEREWOLF:
+            if role == Roles.WEREWOLF:
                 return self.state.get_alive_players_except([player_id])
             return []
-        # 添加其他阶段的合法动作...
+        
+        elif self.current_phase == GamePhase.NIGHT_SEER:
+            if role == Roles.SEER:
+                return self.state.get_alive_players_except([player_id])
+            return []
+            
+        elif self.current_phase == GamePhase.NIGHT_DOCTOR:
+            if role == Roles.DOCTOR:
+                # 医生可以救自己或其他人
+                return self.state.get_alive_players()
+            return []
+            
+        elif self.current_phase == GamePhase.DAY_VOTE:
+            # 所有活着的玩家都可以投票
+            return self.state.get_alive_players_except([player_id])
+                
+        return []
         
     def _is_valid_action(self, action):
         """检查动作是否合法"""
@@ -80,5 +99,12 @@ class WerewolfGameEnv:
         
     def _move_to_next_phase(self):
         """进入下一个游戏阶段"""
-        # 根据当前阶段确定下一阶段
-        # ...
+        if self.current_phase == GamePhase.NIGHT_WEREWOLF:
+            self.current_phase = GamePhase.NIGHT_SEER
+        elif self.current_phase == GamePhase.NIGHT_SEER:
+            self.current_phase = GamePhase.NIGHT_DOCTOR  # 预言家之后是医生行动
+        elif self.current_phase == GamePhase.NIGHT_DOCTOR:
+            self.current_phase = GamePhase.NIGHT_WITCH  # 医生之后是女巫行动（如果有）
+        elif self.current_phase == GamePhase.NIGHT_WITCH:
+            self.current_phase = GamePhase.DAY_ANNOUNCE
+        # ...其他阶段...

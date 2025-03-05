@@ -3,6 +3,7 @@ from .utils.constants import Roles, GamePhase
 from .roles.werewolf import WerewolfAgent
 from .roles.villager import VillagerAgent
 from .roles.seer import SeerAgent
+from .roles.doctor import DoctorAgent  # 导入医生智能体
 
 class GameManager:
     def __init__(self, num_players, role_config):
@@ -21,6 +22,8 @@ class GameManager:
                 agents.append(WerewolfAgent(i, role))
             elif role == Roles.SEER:
                 agents.append(SeerAgent(i, role))
+            elif role == Roles.DOCTOR:
+                agents.append(DoctorAgent(i, role))
             else:
                 agents.append(VillagerAgent(i, role))
                 

@@ -12,7 +12,7 @@ class BaseAgent:
         
     def update_policy(self, state, action, reward, next_state):
         """更新策略"""
-        raise NotImplementedError
+        pass
         
     def remember(self, observation, action, reward, next_observation, done):
         """存储经验"""

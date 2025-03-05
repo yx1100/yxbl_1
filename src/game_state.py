@@ -63,3 +63,21 @@ class GameState:
             "public_information": self.public_information,
             # 其他信息...
         }
+    
+        # 添加到game_state.py中
+    def get_role_specific_observation(self, player_id):
+        """为不同角色提供特定观察"""
+        base_obs = self.get_observation()  # 基本观察
+        role = self.get_role(player_id)
+        
+        if role == Roles.WEREWOLF:
+            # 狼人知道其他狼人
+            werewolves = [i for i, r in enumerate(self.roles) if r == Roles.WEREWOLF and i in self.alive_players]
+            base_obs["werewolves"] = werewolves
+            
+        elif role == Roles.SEER:
+            # 预言家知道已查验的玩家
+            if player_id in self.private_information:
+                base_obs["checked_players"] = self.private_information[player_id].get("checked_players", {})
+                
+        return base_obs
