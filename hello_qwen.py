@@ -28,6 +28,7 @@ try:
     print(f"模型输出：{assistant_output}\n")
     while "结束" not in user_input:
         user_input = input("请输入：")
+        print(f"用户输入：{user_input}\n")
         # 将用户问题信息添加到messages列表中
         messages.append({"role": "user", "content": user_input})
         assistant_output = get_response(messages).choices[0].message.content
