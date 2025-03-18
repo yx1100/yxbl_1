@@ -1,18 +1,15 @@
 from .role import Role
 
 class Villager(Role):
-    def __init__(self, player_id, name="村民"):
-        super().__init__(player_id, name)
-        self.role_type = "villager"
-        self.team = "villager"  # 好人阵营
-        
-    def use_ability(self, target=None):
-        """村民没有特殊能力，此方法仅为接口统一
-        
-        Returns:
-            dict: 包含能力使用结果的字典
+    def __init__(self, name="villager", faction="VILLAGERS"):
+        super().__init__(name, faction)
+        self.role_prompt = """
+        你的角色是村民。
+        你在整个夜晚阶段都将保持睡眠状态，且不会知道任何夜晚阶段发生的事情。
+        等待天亮后，你将会被唤醒，接着你可以参与讨论。
         """
-        return {
-            "success": False, 
-            "message": "村民没有特殊能力"
-        }
+
+    def use_ability(self):
+        # 使用技能
+        doctor_ability_prompt = self.role_prompt
+        return doctor_ability_prompt

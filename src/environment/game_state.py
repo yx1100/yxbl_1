@@ -74,19 +74,19 @@ class GameState:
 
         # 计算存活的狼人和村民数量
         self.werewolves = [
-            p for p in alive_players if p.player_faction == "werewolf"]
+            p for p in alive_players if p.player_faction == "WEREWOLVES"]
         self.villagers = [
-            p for p in alive_players if p.player_faction == "villager"]
+            p for p in alive_players if p.player_faction == "VILLAGERS"]
 
         # 判断游戏结束条件
         if len(self.werewolves) == 0:
             # 狼人全部死亡，好人胜利
             self.game_is_over = True
-            self.winner = "villager"
+            self.winner = "VILLAGERS"
         elif len(self.werewolves) >= len(self.villagers):
             # 狼人数量大于等于村民，狼人胜利
             self.game_is_over = True
-            self.winner = "werewolf"
+            self.winner = "WEREWOLVES"
         else:
             self.game_is_over = False
             self.winner = None

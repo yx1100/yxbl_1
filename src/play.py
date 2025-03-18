@@ -27,7 +27,7 @@ def setup_game(player_count=6):
     agents = []
     for player_id, role in zip(player_id_list, player_role_list):
         # 根据角色确定阵营
-        faction = "werewolf" if role == "werewolf" else "villager"
+        faction = "WEREWOLVES" if role == "werewolf" else "VILLAGERS"
 
         # 根据ID创建人类或AI代理
         if player_id == human_player_id:
