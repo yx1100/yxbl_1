@@ -31,7 +31,8 @@ def setup_game(player_count=6):
 
         # 根据ID创建人类或AI代理
         if player_id == human_player_id:
-            agent = HumanAgent(player_id=player_id, role=role, faction=faction)
+            # agent = HumanAgent(player_id=player_id, role=role, faction=faction)
+            agent = LLMAgent(player_id=player_id, role=role, faction=faction)
         else:
             agent = LLMAgent(player_id=player_id, role=role, faction=faction)
         agents.append(agent)
