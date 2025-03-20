@@ -5,19 +5,19 @@ from agents.human_agent import HumanAgent
 
 def setup_game(player_count=6):
     # 设置游戏环境和玩家
-    # Calculate number of villagers
+    # 计算村民数量
     villagers_count = player_count - 4  # 1 doctor, 2 werewolves, 1 seer
     if villagers_count < 0:
         raise ValueError(
             "Player count must be at least 4 to have all required roles")
 
-    # Create roles list
+    # 创建角色列表
     player_role_list = ['doctor'] + ['werewolf'] * \
         2 + ['seer'] + ['villager'] * villagers_count
-    # Shuffle roles to randomize
+    # 随机打乱角色列表
     random.shuffle(player_role_list)
 
-    # Create player IDs list with "ID_X" format
+    # 创建玩家ID列表,格式为"ID_X"。
     player_id_list = [f"ID_{i}" for i in range(1, player_count + 1)]
 
     # 随机选择一个ID作为人类玩家
@@ -37,11 +37,11 @@ def setup_game(player_count=6):
             agent = LLMAgent(player_id=player_id, role=role, faction=faction)
         agents.append(agent)
 
-    return player_role_list, player_id_list, agents, human_player_id
+    return player_role_list, player_id_list, human_player_id, agents
 
 
 def main():
-    a, b, agents, d = setup_game()
+    a, b, c, agents = setup_game()
 
     for agent in agents:
         print(
@@ -51,7 +51,7 @@ def main():
             print(agent_prompt)
             response = agent.client.get_response(input_messages=agent_prompt)
             if response["success"]:
-                print(response["content"])
+                print(response["content"],'\n')
             else:
                 print(response["error"])
 
