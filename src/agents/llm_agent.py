@@ -14,8 +14,7 @@ class LLMAgent(BaseAgent):
             player_id: 玩家ID
             role: 角色对象(Werewolf, Villager等)
             faction: 阵营
-            api_client: LLMClient实例
-            is_alive: 是否存活
+            client: LLMClient实例
         """
         super().__init__(player_id, role, faction, human_or_ai="AI")
 
@@ -32,11 +31,3 @@ class LLMAgent(BaseAgent):
         else:
             raise ValueError(f"Unknown role: {role}")
         self.client = LLMClient(system_message=role_message)
-
-        self.chat_history = []  # 存储与其他玩家的对话历史
-        self.knowledge = {
-            "suspects": [],      # 怀疑是狼人的玩家
-            "trusted": [],       # 认为是好人的玩家
-            "observed_deaths": []  # 观察到的死亡情况
-        }
-
