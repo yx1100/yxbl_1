@@ -1,12 +1,11 @@
 class WerewolfPrompt():
-    def __init__(self, roles_list, players_num, player_id, player_role, language='cn'):
+    def __init__(self, roles_list, players_num, player_id, language='cn'):
         self.roles_list = roles_list
         self.players_num = players_num
         self.player_id = player_id
-        self.player_role = player_role
         self.language = language
 
-    def get_game_rules_prompt(self, language="cn"):
+    def get_game_rules_prompt(self):
         game_rules_prompt_en = f"""
         You are playing a game called the Werewolf with some other players. This game is based on text conversations. Here are the game rules: 
         - There are {self.players_num} roles in the game: {self.roles_list}. You're playing with {self.players_num - 1} other players.
@@ -57,14 +56,14 @@ class WerewolfPrompt():
         else:
             return game_rules_prompt_cn
 
-    def _get_base_role_prompt(self):
+    def _get_player_id_prompt(self):
         if self.language == "en":
             return f"""Your player id is {self.player_id}, """
         else:
-            return f"""你是玩家{self.player_id}，"""
+            return f"""你是玩家 {self.player_id}，"""
 
     def get_doctor_rule_prompt(self):
-        base_prompt = self._get_base_role_prompt
+        base_prompt = self._get_player_id_prompt
         doctor_rule_prompt_cn = base_prompt + f"""
         你的角色是医生。
         每到夜晚阶段，当到你（医生）的回合时，你将被唤醒，接着你可以选择任意一名还存活的玩家（包括自己）进行救治。
@@ -91,7 +90,7 @@ class WerewolfPrompt():
             return doctor_rule_prompt_cn
 
     def get_seer_rule_prompt(self):
-        base_prompt = self._get_base_role_prompt
+        base_prompt = self._get_player_id_prompt
         seer_rule_prompt_cn = base_prompt + f"""
         你的角色是预言家。
         每到夜晚阶段，当到你（预言家）的回合时，你将被唤醒，接着你可以选择任意一名还存活的玩家（除了自己）进行身份查验。
@@ -114,7 +113,7 @@ class WerewolfPrompt():
             return seer_rule_prompt_cn
 
     def get_villager_rule_prompt(self):
-        base_prompt = self._get_base_role_prompt()  # 注意这里添加了()调用函数
+        base_prompt = self._get_player_id_prompt()  # 注意这里添加了()调用函数
         villager_rule_prompt_cn = base_prompt + f"""
         你的角色是村民。
         你在整个夜晚阶段都将保持睡眠状态，且不会知道任何夜晚阶段发生的事情。
@@ -131,7 +130,7 @@ class WerewolfPrompt():
             return villager_rule_prompt_cn
 
     def get_werewolf_rule_prompt(self):
-        base_prompt = self._get_base_role_prompt()  # 注意这里添加了()调用函数
+        base_prompt = self._get_player_id_prompt()  # 注意这里添加了()调用函数
         werewolf_rule_prompt_cn = base_prompt + f"""
         你的角色是狼人。
         每到夜晚阶段，当到你（狼人）的回合时，在场还存活着的狼人将被唤醒，接着狼人们可以达成共识选择杀害任意一名还存活的玩家（包括狼人自己）。
