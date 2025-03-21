@@ -2,7 +2,10 @@ from src.environment.game_manager import GameManager
 
 
 def main():
-    a, b, c, agents = GameManager().setup_game()
+    game_manager = GameManager()
+    game_manager.setup_game()
+
+    agents = game_manager.game_agents
 
     for agent in agents:
         print(

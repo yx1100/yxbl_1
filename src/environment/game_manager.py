@@ -165,6 +165,7 @@ class GameManager:
         # 玩家讨论
         for player in self.game_state.alive_players:
             print(f"Player {player.player_id} 发言：...")
+            # TODO: 此处应该调用玩家的发言方法
 
     def vote_phase(self):
         """处理投票阶段"""
@@ -175,6 +176,10 @@ class GameManager:
 
         print("\n==== 投票阶段 ====")
         # 收集所有玩家的投票
+
+        for player in self.game_state.alive_players:
+            print(f"Player {player.player_id} 发言：...")
+            # TODO: 此处每位玩家选择一名投票对象
         # 处理投票结果
 
     def end_game(self):
