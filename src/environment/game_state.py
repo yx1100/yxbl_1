@@ -1,13 +1,115 @@
 class GameState:
+    """
+    游戏状态类：管理狼人杀游戏的所有状态信息，包括玩家、阵营、游戏阶段等
+    """
     def __init__(self, players):
-        self.initial_players = players  # 初始玩家列表
-        self.roles = {}  # 玩家角色信息
-        self.villagers = []  # 村民阵营玩家
-        self.werewolves = []  # 狼人阵营玩家
+        """
+        初始化游戏状态
+        :param players: 游戏玩家列表
+        """
+        self.initial_players = players.copy()  # 初始玩家列表（使用复制避免引用问题）
+        self.alive_players = players.copy()  # 存活玩家列表（初始时与初始玩家相同）
+        self.roles = []  # 所有玩家的角色信息列表
+        self.alive_roles = []  # 存活玩家的角色信息列表
+        self.villagers_players = []  # 村民阵营玩家列表
+        self.werewolves_players = []  # 狼人阵营玩家列表
 
-        self.day_count = 0  # 游戏天数
-        self.phase = "night"  # 当前阶段，可选值为"night", "day", "vote"
+        # 遍历所有玩家，记录角色信息并按阵营分类
+        for player in players:
+            self.roles.append(player.role)
+            if player.faction == 'VILLAGERS':
+                self.villagers_players.append(player)
+            elif player.faction == 'WEREWOLVES':
+                self.werewolves_players.append(player)
+            else:
+                raise ValueError(f"Invalid faction: {player.faction} for player {player.name if hasattr(player, 'name') else player}")
 
-        self.history = []  # 游戏历史记录
-        self.winner = None  # 获胜阵营，可选值"villager", "werewolf"
+        self.day_count = 1  # 游戏天数，从第1天开始
+        self.phase = "NIGHT"  # 当前游戏阶段，可选值为"NIGHT"(夜晚), "DAY"(白天), "VOTE"(投票)
+
+        self.history = []  # 游戏历史记录，用于记录游戏中的关键事件
+        self.winner = None  # 获胜阵营，可选值"VILLAGER"(村民), "WEREWOLF"(狼人)
         self.game_is_over = False  # 游戏结束标志
+
+    def get_alive_players(self):
+        """
+        获取当前存活玩家列表
+        :return: 存活玩家列表
+        注意：此方法会更新self.alive_players属性
+        """
+        alive_players = []
+        for player in self.alive_players:
+            if player.is_alive:
+                alive_players.append(player)
+        self.alive_players = alive_players  # 更新存活玩家列表
+        return self.alive_players
+
+    def get_players_role(self):
+        """
+        获取所有玩家角色信息
+        :return: 角色信息列表
+        """
+        return self.roles
+    
+    def get_alive_players_role(self):
+        """
+        获取存活玩家角色信息
+        :return: 存活玩家角色信息列表
+        """
+        alive_roles = []
+        for player in self.alive_players:
+            alive_roles.append(player.role)
+        self.alive_roles = alive_roles
+        return self.alive_roles
+
+    def get_VILLAGERS_players(self):
+        """
+        获取村民阵营玩家列表
+        :return: 村民阵营玩家列表
+        """
+        return self.villagers_players
+
+    def get_WEREWOLVES_players(self):
+        """
+        获取狼人阵营玩家列表
+        :return: 狼人阵营玩家列表
+        """
+        return self.werewolves_players
+
+    def get_day_count(self):
+        """
+        获取当前游戏天数
+        :return: 当前游戏天数
+        """
+        return self.day_count
+
+    def update_day_count(self):
+        """
+        更新游戏天数（增加一天）
+        :return: 无有效返回值，仅打印信息
+        """
+        if self.game_is_over is True:
+            print("游戏已结束")  # 游戏已结束时不更新天数
+        else:
+            self.day_count = self.day_count + 1
+            print(f"当前是：第 {self.day_count} 天。\n新的一天开始...")
+
+    def get_current_phase(self):
+        return self.phase
+
+    def advance_phase(self):
+        """推进到下一阶段"""
+        if self.phase == "NIGHT":
+            self.phase = "DAY"
+        elif self.phase == "DAY":
+            self.phase = "VOTE"
+        elif self.phase == "VOTE":
+            self.phase = "NIGHT"
+            self.update_day_count()
+        return self.phase
+        
+    def get_winner_faction(self):
+        if self.game_is_over is False:
+            return print("游戏尚未结束")
+        else:
+            return print(f"游戏获胜方是：{self.winner}")

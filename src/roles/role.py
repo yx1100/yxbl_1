@@ -1,4 +1,4 @@
-from utils.rules_prompt import WerewolfPrompt
+from src.utils.rules_prompt import WerewolfPrompt
 
 
 class Role:

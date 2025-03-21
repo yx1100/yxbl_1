@@ -1,4 +1,4 @@
-from .role import Role
+from src.roles.role import Role
 
 
 class Seer(Role):

@@ -1,9 +1,9 @@
-from agents.base_agent import BaseAgent
-from utils.llm_client import LLMClient
-from roles.doctor import Doctor
-from roles.seer import Seer
-from roles.villager import Villager
-from roles.werewolf import Werewolf
+from src.agents.base_agent import BaseAgent
+from src.utils.llm_client import LLMClient
+from src.roles.doctor import Doctor
+from src.roles.seer import Seer
+from src.roles.villager import Villager
+from src.roles.werewolf import Werewolf
 
 
 class LLMAgent(BaseAgent):

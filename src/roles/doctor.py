@@ -1,4 +1,4 @@
-from roles.role import Role
+from src.roles.role import Role
 
 
 class Doctor(Role):
