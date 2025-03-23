@@ -123,6 +123,7 @@ class GameManager:
             for player in self.game_state.alive_players[:]:  # Create a copy for safe iteration
                 if player.player_id == self.kill_player:
                     self.game_state.alive_players.remove(player)
+                    self.game_state.alive_roles.remove(player.role)
                     break
         self.save_player = None
 
@@ -132,12 +133,13 @@ class GameManager:
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
 
+
         
         print("被杀玩家：", self.kill_player)
         print("被救玩家：", self.save_player)
         print("被查玩家：", self.check_player)
-        print("存活玩家：", alive_players)
-        print("存活玩家角色：", alive_roles)
+        print("存活玩家：", self.game_state.alive_players)
+        print("存活玩家角色：", self.game_state.alive_roles)
 
         self.end_game()
 
