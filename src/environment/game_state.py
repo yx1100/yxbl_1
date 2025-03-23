@@ -11,6 +11,7 @@ class GameState:
         self.alive_players = players.copy()  # 存活玩家列表（初始时与初始玩家相同）
         self.roles = []  # 所有玩家的角色信息列表
         self.alive_roles = []  # 存活玩家的角色信息列表
+        self.alive_players_id = []  # 存活玩家的ID列表
         self.villagers_players = []  # 村民阵营玩家列表
         self.werewolves_players = []  # 狼人阵营玩家列表
 
@@ -61,6 +62,17 @@ class GameState:
             alive_roles.append(player.role)
         self.alive_roles = alive_roles
         return self.alive_roles
+    
+    def get_alive_players_id(self):
+        """
+        获取存活玩家角色信息
+        :return: 存活玩家角色信息列表
+        """
+        alive_ids = []
+        for player in self.alive_players:
+            alive_ids.append(player.player_id)
+        self.alive_players_id = alive_ids
+        return self.alive_players_id
 
     def get_VILLAGERS_players(self):
         """

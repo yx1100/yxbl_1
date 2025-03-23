@@ -53,7 +53,7 @@ class GameManager:
         self.game_state = GameState(agents)
         self.game_agents = agents
 
-        return None
+        return self.game_agents
 
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
@@ -65,17 +65,12 @@ class GameManager:
         current_phase = self.game_state.get_current_phase()
 
         # 执行当前阶段的逻辑
-        if current_phase == "night":
+        if current_phase == "NIGHT":
             self.night_phase()
-        elif current_phase == "day":
+        elif current_phase == "DAY":
             self.day_phase()
-        elif current_phase == "vote":
+        elif current_phase == "VOTE":
             self.vote_phase()
-
-        # 检查游戏是否结束
-        if self.game_state.game_is_over:
-            raise RuntimeError(
-                "Game state not initialized. Please setup game first.")
 
         # 推进到下一阶段
         next_phase = self.game_state.advance_phase()
@@ -120,18 +115,27 @@ class GameManager:
         else:
             print('医生已经被杀害，跳过医生阶段...')
 
+        # 处理狼人杀人结果
         if self.kill_player == self.save_player:
             self.kill_player = None
         else:
-            self.game_state.alive_players.remove(self.kill_player) # 从存活玩家列表中移除被杀玩家
+            # Find the player with matching player_id and remove them
+            for player in self.game_state.alive_players[:]:  # Create a copy for safe iteration
+                if player.player_id == self.kill_player:
+                    self.game_state.alive_players.remove(player)
+                    break
         self.save_player = None
 
         # 预言家阶段
         if 'seer' in alive_roles:
             print('一个预言家')
         else:
-            print('预言家已经被杀害，跳过医生阶段...')
+            print('预言家已经被杀害，跳过预言家阶段...')
 
+        
+        print("被杀玩家：", self.kill_player)
+        print("被救玩家：", self.save_player)
+        print("被查玩家：", self.check_player)
         print("存活玩家：", alive_players)
         print("存活玩家角色：", alive_roles)
 
