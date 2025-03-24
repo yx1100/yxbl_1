@@ -95,15 +95,46 @@ class GameManager:
         alive_players = self.game_state.get_alive_players()  # 获取存活玩家列表
         alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
 
+        print("存活玩家：", [player.player_id for player in alive_players])
+        # Find werewolf players
+        werewolf_players = [
+            player for player in alive_players if player.role == 'werewolf']
+        print("狼人玩家:", [player.player_id for player in werewolf_players])
+        doctor_player = [
+            player for player in alive_players if player.role == 'doctor'][0]
+        seer_player = [
+            player for player in alive_players if player.role == 'seer'][0]
+
         # 狼人阶段
-        werewolf_count = alive_roles.count('werewolf')  # 统计'werewolf'的数量
-        if werewolf_count == 2:
+        if len(werewolf_players) == 2:
             # 两个狼人
             print("两个狼人")
+            werewolf_1 = werewolf_players[0]
+            werewolf_2 = werewolf_players[1]
+            werewolf_1_agent_prompt = werewolf_1.client.messages
+            werewolf_2_agent_prompt = werewolf_2.client.messages
+
+            werewolf_1_response = werewolf_1.client.get_response(
+                input_messages=werewolf_1_agent_prompt)['content']
+            werewolf_2_response = werewolf_2.client.get_response(
+                input_messages=werewolf_2_agent_prompt)['content']
+
+            print("狼人1:", werewolf_1_agent_prompt)
+            print("狼人2:", werewolf_2_agent_prompt)
+
+            print("狼人1的回复:", werewolf_1_response)
+
             self.kill_player = "ID_1"
-        elif werewolf_count == 1:
+        elif len(werewolf_players) == 1:
             # 一个狼人
             print("一个狼人")
+            werewolf = werewolf_players[0]
+            werewolf_agent_prompt = werewolf.client.messages
+            werewolf_response = werewolf.client.get_response(
+                input_messages=werewolf_agent_prompt)['content']
+
+            print("狼人:", werewolf_agent_prompt)
+
             self.kill_player = "ID_1"
         else:
             raise RuntimeError("Invalid werewolf count.")
@@ -111,6 +142,12 @@ class GameManager:
         # 医生阶段
         if 'doctor' in alive_roles:
             print('一个医生')
+            doctor_agent_prompt = doctor_player.client.messages
+            doctor_response = doctor_player.client.get_response(
+                input_messages=doctor_agent_prompt)['content']
+
+            print("医生:", doctor_agent_prompt)
+
             self.save_player = "ID_2"
         else:
             print('医生已经被杀害，跳过医生阶段...')
@@ -120,25 +157,32 @@ class GameManager:
             self.kill_player = None
         else:
             # Find the player with matching player_id and remove them
-            for player in self.game_state.alive_players[:]:  # Create a copy for safe iteration
+            # Create a copy for safe iteration
+            for player in self.game_state.alive_players[:]:
                 if player.player_id == self.kill_player:
                     self.game_state.alive_players.remove(player)
                     self.game_state.alive_roles.remove(player.role)
                     break
-        self.save_player = None
+        # self.save_player = None
 
         # 预言家阶段
         if 'seer' in alive_roles:
             print('一个预言家')
+            seer_agent_prompt = seer_player.client.messages
+            seer_response = seer_player.client.get_response(
+                input_messages=seer_agent_prompt)['content']
+
+            print("预言家:", seer_agent_prompt)
+
+            self.check_player = "ID_3"
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
 
-
-        
         print("被杀玩家：", self.kill_player)
         print("被救玩家：", self.save_player)
         print("被查玩家：", self.check_player)
-        print("存活玩家：", self.game_state.alive_players)
+        print(
+            "存活玩家：", [player.player_id for player in self.game_state.alive_players])
         print("存活玩家角色：", self.game_state.alive_roles)
 
         self.end_game()
@@ -167,7 +211,6 @@ class GameManager:
         else:
             print("昨晚没有人被杀害.")
 
-
         # 玩家讨论
         for player in self.game_state.alive_players:
             print(f"Player {player.player_id} 发言：...")
@@ -190,13 +233,14 @@ class GameManager:
 
     def if_game_over(self):
         """判断游戏是否结束"""
+
         def if_game_over(self):
             """判断游戏是否结束"""
             alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
-            
+
             werewolf_count = alive_roles.count('werewolf')
             villager_count = len(alive_roles) - werewolf_count
-            
+
             if werewolf_count == 0:
                 # 狼人全部死亡，村民阵营胜利
                 self.game_state.game_is_over = True
