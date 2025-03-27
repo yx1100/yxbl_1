@@ -6,8 +6,9 @@ class Werewolf(Role):
         super().__init__(name="werewolf", player_id=player_id, language=language)
 
     def get_role_prompt(self):
-        return self.prompt.get_werewolf_rule_prompt()
+        game_rule_prompt = self.prompt.get_game_rules_prompt()
+        role_prompt = self.prompt.get_werewolf_rule_prompt()
 
-    def use_ability(self):
-        # 使用技能
-        pass
+        prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
+
+        return prompt
