@@ -1,3 +1,9 @@
 .DS_Store
 .vscode/settings.json
 .env
+src/environment/__pycache__/game_manager.cpython-311.pyc
+src/roles/__pycache__/doctor.cpython-311.pyc
+src/roles/__pycache__/seer.cpython-311.pyc
+src/roles/__pycache__/villager.cpython-311.pyc
+src/roles/__pycache__/werewolf.cpython-311.pyc
+test.ipynb
