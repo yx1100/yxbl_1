@@ -96,12 +96,14 @@ class GameManager:
         alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
 
         print("存活玩家：", [player.player_id for player in alive_players])
-        # Find werewolf players
+        # 狼人玩家
         werewolf_players = [
             player for player in alive_players if player.role == 'werewolf']
         print("狼人玩家:", [player.player_id for player in werewolf_players])
+        # 医生玩家
         doctor_player = [
             player for player in alive_players if player.role == 'doctor'][0]
+        # 预言家玩家
         seer_player = [
             player for player in alive_players if player.role == 'seer'][0]
 
@@ -123,6 +125,7 @@ class GameManager:
             print("狼人2:", werewolf_2_agent_prompt)
 
             print("狼人1的回复:", werewolf_1_response)
+            print("狼人2的回复:", werewolf_2_response)
 
             self.kill_player = "ID_1"
         elif len(werewolf_players) == 1:

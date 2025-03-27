@@ -27,6 +27,11 @@ class Role:
             language=language
         )
 
+    def get_game_rules_prompt(self):
+        """获取游戏规则提示"""
+        return self.prompt.get_game_rules_prompt()
+
+
     def use_ability(self):
         """使用角色特殊能力（由子类实现）"""
         pass
