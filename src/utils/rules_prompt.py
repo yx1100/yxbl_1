@@ -1,5 +1,5 @@
 class WerewolfPrompt:
-    def __init__(self, roles_list, players_num, player_id, language='cn'):
+    def __init__(self, roles_list=[], players_num=6, player_id=[], language='cn'):
         self.roles_list = roles_list
         self.players_num = players_num
         self.player_id = player_id
@@ -57,6 +57,30 @@ class WerewolfPrompt:
         else:
             return game_rules_prompt_cn
 
+    def get_phase_prompt(self, day_count, phase, alive_players):
+        if self.language == "cn":
+            if phase == "NIGHT":
+                current_phase = "'夜晚'阶段"
+            elif phase == "DAY":
+                current_phase = "'白天'阶段"
+            elif phase == "VOTE":
+                current_phase = "'投票'阶段"
+        elif self.language == "en":
+            if phase == "NIGHT":
+                current_phase = "'Night' phase"
+            elif phase == "DAY":
+                current_phase = "'Day' phase"
+            elif phase == "VOTE":
+                current_phase = "'Vote' phase"
+        
+
+        phase_prompt_cn = f"""现在是游戏的第{day_count}天，当前游戏阶段是{current_phase}, 当前存活玩家有{len(alive_players)}名，分别是：{alive_players}"""
+        phase_prompt_en = f"""It's day {day_count} of the game, the current game phase is {current_phase}, and there are {len(alive_players)} players still alive: {alive_players}."""
+        if self.language == "en":
+            return phase_prompt_en
+        elif self.language == "cn":
+            return phase_prompt_cn
+    
     def _get_player_id_prompt(self):
         if self.language == "en":
             return f"""Your player id is {self.player_id}, """
