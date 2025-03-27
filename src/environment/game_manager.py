@@ -1,3 +1,4 @@
+from math import e
 import random
 from src.environment.game_state import GameState
 from src.agents.llm_agent import LLMAgent
@@ -61,12 +62,25 @@ class GameManager:
         if self.game_state is None:
             raise RuntimeError(
                 "Game state not initialized. Please setup game first.")
-
+        
+        # 1. 判断游戏是否结束
+        if self.game_state.game_is_over:
+            self.end_game()
+            return
+        
+        # 2. 获取当前存活玩家
+        alive_players = self.game_state.get_alive_players()  # 获取存活玩家列表
+        alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
+        # 3. 获取当前天数
+        current_day_count = self.game_state.get_day_count() # 获取当前游戏天数
+        print(f"当前游戏天数：{self.game_state.day_count}")
+        # 4. 获取当前阶段
         current_phase = self.game_state.get_current_phase()
+        print(f"当前游戏阶段：{current_phase}")
 
         # 执行当前阶段的逻辑
         if current_phase == "NIGHT":
-            self.night_phase()
+            self.night_phase(alive_players, alive_roles, current_day_count, current_phase)
         elif current_phase == "DAY":
             self.day_phase()
         elif current_phase == "VOTE":
@@ -76,7 +90,7 @@ class GameManager:
         next_phase = self.game_state.advance_phase()
         return next_phase
 
-    def night_phase(self):
+    def night_phase(self, alive_players, alive_roles, current_day_count, current_phase):
         """处理夜晚阶段"""
         """
         1. 狼人：在场存活的狼人睁眼。如果存活的狼人数量为2，则第1个狼人根据分析，然后决定杀谁。如果第2个狼人同意第1个狼人的决定，则狼人达成共识选定受害者。如果第2个狼人不同意的第1个狼人的决定，则第2个狼人给出分析，然后决定杀谁。如果第1个狼人同意第2个狼人的决定，则狼人达成共识杀害第2个狼人选定的受害者，否则第1个狼人继续给出自己的分析和决定。以此反复5个来回，若狼人们仍无法达成共识选定受害者，则这一夜将没有人被害。如果存活的狼人数量为1，则唯一的狼人决定杀害谁。无论有没有达成共识选定受害者，狼人闭眼。
@@ -91,9 +105,6 @@ class GameManager:
 
         print("\n==== 夜晚降临 ====")
         # 处理狼人袭击、医生救人、预言家查验等行为
-
-        alive_players = self.game_state.get_alive_players()  # 获取存活玩家列表
-        alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
 
         print("存活玩家：", [player.player_id for player in alive_players])
         # 狼人玩家
@@ -267,3 +278,4 @@ class GameManager:
             print("村民阵营胜利!")
         else:
             print("游戏平局!")
+        print("游戏结束！") 
