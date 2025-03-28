@@ -216,7 +216,6 @@ class GameManager:
             else:
                 self.kill_player = None
                 print("狼人无法达成共识，今晚没有人被杀害")
-
         elif len(werewolf_players) == 1:
             # 一个狼人直接决定
             werewolf = werewolf_players[0]
