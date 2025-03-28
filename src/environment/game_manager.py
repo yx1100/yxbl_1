@@ -1,8 +1,10 @@
 import random
 from src.environment.game_state import GameState
-from src.utils.rules_prompt import WerewolfPrompt
+from src.utils.rules_prompt import WerewolfRolePrompt, GameRulePrompt
 from src.agents.llm_agent import LLMAgent
 from src.agents.human_agent import HumanAgent
+import json
+import re
 
 
 class GameManager:
@@ -71,7 +73,7 @@ class GameManager:
         # 2. 获取当前存活玩家
         alive_players = self.game_state.get_alive_players()
         alive_players_id = [
-            player.player_id for player in alive_players]  # 获取存活玩家列表
+            player.player_id for player in alive_players]  # 获取存活玩家ID列表
         alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
         # 3. 获取当前天数
         current_day_count = self.game_state.get_day_count()  # 获取当前游戏天数
@@ -80,13 +82,12 @@ class GameManager:
         current_phase = self.game_state.get_current_phase()
         print(f"当前游戏阶段：{current_phase}")
         # 5. 获取当前阶段提示词
-        pp = WerewolfPrompt().get_phase_prompt(day_count=current_day_count,
-                                               phase=current_phase, alive_players=alive_players_id)
-        print(f"当前阶段提示词：{pp}")
+        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count, phase=current_phase, alive_players=alive_players_id)
+        print(f"当前阶段提示词：{phase_prompt}")
 
         # 执行当前阶段的逻辑
         if current_phase == "NIGHT":
-            self.night_phase(alive_players, alive_roles, pp)
+            self.night_phase(alive_players, alive_roles, phase_prompt)
         elif current_phase == "DAY":
             self.day_phase()
         elif current_phase == "VOTE":
@@ -124,9 +125,10 @@ class GameManager:
         seer_player = [
             player for player in alive_players if player.role == 'seer'][0]
 
+        response_prompt = GameRulePrompt().get_response_format_prompt()
         # 狼人阶段
+        # 两个狼人协商决策
         if len(werewolf_players) == 2:
-            # 两个狼人协商决策
             werewolf_1 = werewolf_players[0]
             werewolf_2 = werewolf_players[1]
             # 获取狼人1和狼人2的初始消息列表
@@ -134,35 +136,42 @@ class GameManager:
             werewolf_2_messages = werewolf_2.client.messages.copy()
             print(f"狼人1号System Message：{werewolf_1_messages}")
             print(f"狼人2号System Message：{werewolf_2_messages}")
-            
+
             # 添加当前阶段提示
-            werewolf_1_messages.append({"role": "user", "content": f"{phase_prompt}\n\n你最后要以‘我今晚选择攻击ID_x’的形式正式回复你要攻击的目标。"})
+            werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf', day_count=self.game_state.get_day_count(), player_id=werewolf_players[0].player_id)
+            werewolf_1_messages.append(
+                {"role": "user", "content": f"{phase_prompt}\n\n{werewolf_1_night_prompt}\n\n{response_prompt}"})
             print(f"狼人1号Messages：{werewolf_1_messages}")
-            
+
             # 狼人1先做决定
-            werewolf_1_response = werewolf_1.client.get_response(input_messages=werewolf_1_messages)['content']
-            print("3: "+werewolf_1_response)
-            werewolf_1_messages.append({"role": "assistant", "content": werewolf_1_response})
-            
+            werewolf_1_response = werewolf_1.client.get_response(
+                input_messages=werewolf_1_messages)['content']
+            print("狼人1号的回复: "+werewolf_1_response)
+            werewolf_1_messages.append(
+                {"role": "assistant", "content": werewolf_1_response})
+
             # 解析狼人1的目标
             wolf1_target = self.extract_kill_target(werewolf_1_response)
             print(f"狼人1想要杀害: {wolf1_target}")
-            
+
             # 初始化变量
             consensus = False
             final_target = None
             rounds = 0
-            max_rounds = 5
-            
+            max_rounds = 4
+
             while not consensus and rounds < max_rounds:
                 # 添加狼人1的决定给狼人2
-                werewolf_2_messages.append({"role": "user", "content": 
-                    f"{phase_prompt}\n\n你的同伴狼人决定杀害 {wolf1_target}。你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。"})
-                
+                werewolf_2_messages.append({"role": "user", "content":
+                                            f"""{phase_prompt}\n\n你的同伴狼人决定杀害 {wolf1_target}。你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n\n{response_prompt}"""})
+
                 # 狼人2回应
-                werewolf_2_response = werewolf_2.client.get_response(input_messages=werewolf_2_messages)['content']
-                werewolf_2_messages.append({"role": "assistant", "content": werewolf_2_response})
-                
+                werewolf_2_response = werewolf_2.client.get_response(
+                    input_messages=werewolf_2_messages)['content']
+                print(f"狼人2的回复: {werewolf_2_response}")
+                werewolf_2_messages.append(
+                    {"role": "assistant", "content": werewolf_2_response})
+
                 # 检查狼人2是否同意
                 if self.check_agreement(werewolf_2_response):
                     # 同意，达成共识
@@ -172,16 +181,19 @@ class GameManager:
                     break
                 else:
                     # 不同意，提出自己的目标
-                    wolf2_target = self.extract_kill_target(werewolf_2_response)
+                    wolf2_target = self.extract_kill_target(
+                        werewolf_2_response)
                     print(f"狼人2不同意，想要杀害: {wolf2_target}")
-                    
+
                     # 狼人1回应狼人2的目标
-                    werewolf_1_messages.append({"role": "user", "content": 
-                        f"你原本决定杀害 {wolf1_target}，但你的同伴狼人不同意，他/她想要杀害 {wolf2_target}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。"})
-                    
-                    werewolf_1_response = werewolf_1.client.get_response(input_messages=werewolf_1_messages)['content']
-                    werewolf_1_messages.append({"role": "assistant", "content": werewolf_1_response})
-                    
+                    werewolf_1_messages.append({"role": "user", "content":
+                                                f"你原本决定杀害 {wolf1_target}，但你的同伴狼人不同意，他/她想要杀害 {wolf2_target}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n\n{response_prompt}"})
+
+                    werewolf_1_response = werewolf_1.client.get_response(
+                        input_messages=werewolf_1_messages)['content']
+                    werewolf_1_messages.append(
+                        {"role": "assistant", "content": werewolf_1_response})
+
                     # 检查狼人1是否同意狼人2的决定
                     if self.check_agreement(werewolf_1_response):
                         # 同意，达成共识
@@ -191,11 +203,12 @@ class GameManager:
                         break
                     else:
                         # 不同意，更新狼人1的目标
-                        wolf1_target = self.extract_kill_target(werewolf_1_response)
+                        wolf1_target = self.extract_kill_target(
+                            werewolf_1_response)
                         print(f"狼人1不同意，坚持或改为杀害: {wolf1_target}")
-                
+
                 rounds += 1
-            
+
             # 检查是否达成共识
             if consensus:
                 self.kill_player = final_target
@@ -203,16 +216,17 @@ class GameManager:
             else:
                 self.kill_player = None
                 print("狼人无法达成共识，今晚没有人被杀害")
-            
+
         elif len(werewolf_players) == 1:
             # 一个狼人直接决定
             werewolf = werewolf_players[0]
             werewolf_messages = werewolf.client.messages.copy()
             werewolf_messages.append({"role": "user", "content": phase_prompt})
-            
-            werewolf_response = werewolf.client.get_response(input_messages=werewolf_messages)['content']
+
+            werewolf_response = werewolf.client.get_response(
+                input_messages=werewolf_messages)['content']
             print(f"唯一的狼人的回复: {werewolf_response}")
-            
+
             # 提取狼人想要杀的目标
             self.kill_player = self.extract_kill_target(werewolf_response)
             print(f"狼人决定杀害: {self.kill_player}")
@@ -271,25 +285,33 @@ class GameManager:
 
     def extract_kill_target(self, response):
         """从狼人的回复中提取杀人目标"""
-        # 简单实现：寻找格式为ID_X的字符串
-        import re
-        # Look for expressions like "我今晚选择攻击ID_x"
-        targets = re.findall(r'我(?:今晚|今天)?选择(?:攻击|杀害|杀死)?\s*(ID_\d+)', response)
-        if not targets:
-            # Fallback to find any ID pattern
-            targets = re.findall(r'ID_\d+', response)
-        if targets:
-            # 返回第一个找到的ID
-            return targets[0]
-        else:
-            # 如果没找到，随机选择一个存活玩家
-            alive_player_ids = [p.player_id for p in self.game_state.alive_players]
-            # 过滤掉狼人自己
-            wolf_ids = [p.player_id for p in self.game_state.alive_players if p.role == 'werewolf']
-            valid_targets = [pid for pid in alive_player_ids if pid not in wolf_ids]
-            if valid_targets:
-                return random.choice(valid_targets)
-            return None
+        try:
+            # 尝试解析JSON
+            data = json.loads(response)
+
+            # 检查action字段是否存在
+            if 'action' in data:
+                action = data['action']
+
+                # 使用正则表达式提取"kill ID_X"中的ID_X部分
+                match = re.search(r'kill (ID_\d+)', action)
+                if match:
+                    return match.group(1)
+        except:
+            # JSON解析失败，尝试直接从文本中提取
+            pass
+
+        # 如果JSON解析失败或没有找到目标，尝试直接从文本中提取
+        match = re.search(r'kill (ID_\d+)', response)
+        if match:
+            return match.group(1)
+        # 如果没找到，随机选择一个存活玩家
+        alive_player_ids = [p.player_id for p in self.game_state.alive_players]
+        valid_targets = [
+            pid for pid in alive_player_ids if pid not in wolf_ids]
+        if valid_targets:
+            return random.choice(valid_targets)
+        return None
 
     def check_agreement(self, response):
         """检查回复中是否表示同意"""

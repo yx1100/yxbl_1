@@ -1,8 +1,8 @@
-from src.utils.rules_prompt import WerewolfPrompt
+from src.utils.rules_prompt import WerewolfRolePrompt, GameRulePrompt
 
 
 class Role:
-    def __init__(self, name, player_id, language="cn"):
+    def __init__(self, role_name, player_id, players_num=6, roles_list=['werewolf', 'werewolf', 'doctor', 'seer', 'villager', 'villager'], language="cn"):
         """
         角色基类初始化
 
@@ -12,26 +12,25 @@ class Role:
             player_id (str): 玩家ID
             language (str): 提示语言，默认中文"cn"，可选英文"en"
         """
-        self.name = name
-        if self.name in ['doctor', 'seer', 'villager']:
+        self.role_name = role_name
+        if self.role_name in ['doctor', 'seer', 'villager']:
             self.faction = "VILLAGERS"
-        elif self.name == "werewolf":
+        elif self.role_name == "werewolf":
             self.faction = "WEREWOLVES"
         self.player_id = player_id
+        self.players_num = players_num
+        self.roles_list = roles_list
 
         # 创建提示生成器实例
-        self.prompt = WerewolfPrompt(
-            roles_list=None,  # 游戏中可能出现的角色列表，在游戏开始时设置
-            players_num=6,    # 默认玩家数量，在游戏开始时更新
+        self.rule_prompt = GameRulePrompt(
+            players_num=players_num,
+            roles_list=roles_list,
+            language=language
+        )
+        self.role_prompt = WerewolfRolePrompt(
             player_id=player_id,
             language=language
         )
 
-    def get_game_rules_prompt(self):
-        """获取游戏规则提示"""
-        return self.prompt.get_game_rules_prompt()
-
-
-    def use_ability(self):
-        """使用角色特殊能力（由子类实现）"""
-        pass
+    def get_game_rule_prompt(self):
+        return self.rule_prompt.get_game_rules_prompt()
