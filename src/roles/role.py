@@ -34,3 +34,10 @@ class Role:
 
     def get_game_rule_prompt(self):
         return self.rule_prompt.get_game_rules_prompt()
+    
+    def do_action(self):
+        """
+        执行角色行动
+        :return: None
+        """
+        pass

@@ -1,23 +1,18 @@
+from src.environment.game_state import GameState
 from src.environment.game_manager import GameManager
 
 
 def main():
+    # 游戏初始化
     game_manager = GameManager()
-    game_manager.setup_game()
+    agents = game_manager.setup_game() 
+    game_state = GameState(agents)
 
-    agents = game_manager.game_agents
+    alive_players_id = game_state.get_alive_players_id()
+    alive_players_role = game_state.get_alive_players_role()
 
-    for agent in agents:
-        print(
-            f"Player ID: {agent.player_id}, Role: {agent.role}, Faction: {agent.faction}, Human/AI: {agent.human_or_ai}")
-        if agent.human_or_ai == "AI":
-            agent_prompt = agent.client.messages
-            print(agent_prompt)
-            response = agent.client.get_response(input_messages=agent_prompt)
-            if response["success"]:
-                print(response["content"], '\n')
-            else:
-                print(response["error"])
+    phase = game_state.phase
+    game_manager.run_phase()
 
 
 if __name__ == "__main__":
