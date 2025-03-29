@@ -1,4 +1,4 @@
-from pydoc import Doc
+import sys
 import random
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
@@ -68,9 +68,7 @@ class GameManager:
                 "Game state not initialized. Please setup game first.")
 
         # 1. 判断游戏是否结束
-        if self.game_state.game_is_over:
-            self.end_game()
-            return
+        self._if_game_over()
 
         # 2. 获取当前存活玩家
         alive_players = self.game_state.get_alive_players()
@@ -121,7 +119,7 @@ class GameManager:
         # 狼人玩家
         werewolf_players = [
             player for player in alive_players if player.role == 'werewolf']
-        print("狼人玩家:", [player.player_id for player in werewolf_players])
+        print("狼人玩家：", [player.player_id for player in werewolf_players])
         # 医生玩家
         doctor_player = [
             player for player in alive_players if player.role == 'doctor'][0]
@@ -170,7 +168,7 @@ class GameManager:
         print("存活玩家：", [player.player_id for player in self.game_state.alive_players])
         print("存活玩家角色：", self.game_state.alive_roles)
 
-        self.end_game()
+        self._if_game_over()
 
         return None
 
@@ -216,37 +214,29 @@ class GameManager:
             # TODO: 此处每位玩家选择一名投票对象
         # 处理投票结果
 
-    def if_game_over(self):
+    def _if_game_over(self):
         """判断游戏是否结束"""
+        alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
 
-        def if_game_over(self):
-            """判断游戏是否结束"""
-            alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
+        werewolf_count = alive_roles.count('werewolf')
+        villager_count = len(alive_roles) - werewolf_count
 
-            werewolf_count = alive_roles.count('werewolf')
-            villager_count = len(alive_roles) - werewolf_count
-
-            if werewolf_count == 0:
-                # 狼人全部死亡，村民阵营胜利
-                self.game_state.game_is_over = True
-                self.game_state.winner = "VILLAGERS"
-                return True
-            elif werewolf_count >= villager_count:
-                # 狼人数量等于或超过其他玩家，狼人阵营胜利
-                self.game_state.game_is_over = True
-                self.game_state.winner = "WEREWOLVES"
-                return True
-            else:
-                # 游戏继续
-                return False
-
-    def end_game(self):
-        """处理游戏结束"""
-        print("\n==== 游戏结束 ====")
-        if self.game_state.winner == "werewolf":
-            print("狼人阵营胜利!")
-        elif self.game_state.winner == "villager":
+        if werewolf_count == 0:
+            # 狼人全部死亡，村民阵营胜利
+            self.game_state.game_is_over = True
+            self.game_state.winner = "VILLAGERS"
+            print("\n==== 游戏结束 ====")
             print("村民阵营胜利!")
+            print("游戏结束！")
+            sys.exit(0)  # 0表示正常退出，其他数字表示错误代码
+        elif werewolf_count >= villager_count:
+            # 狼人数量等于或超过其他玩家，狼人阵营胜利
+            self.game_state.game_is_over = True
+            self.game_state.winner = "WEREWOLVES"
+            print("\n==== 游戏结束 ====")
+            print("狼人阵营胜利!")
+            print("游戏结束！")
+            sys.exit(0)  # 0表示正常退出，其他数字表示错误代码
         else:
-            print("游戏平局!")
-        print("游戏结束！")
+            # 游戏继续
+            return False
