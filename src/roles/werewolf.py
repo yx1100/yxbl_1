@@ -15,11 +15,6 @@ class Werewolf(Role):
         return prompt
 
     def do_action(self, werewolf_players, response_prompt, phase_prompt, game_state):
-        """
-        执行狼人行动
-        :param action: 行动
-        :return: None
-        """
         # 狼人阶段
         # 两个狼人协商决策
         kill_player = None
@@ -132,12 +127,3 @@ class Werewolf(Role):
             raise RuntimeError("Invalid werewolf count.")
         
         return kill_player
-
-    def check_agreement(self, response):
-        """检查回复中是否表示同意"""
-        # 简单实现：检查是否包含"同意"、"赞成"等关键词
-        agreement_keywords = ["同意", "赞成", "支持", "认可", "没问题", "可以"]
-        for keyword in response:
-            if keyword in response:
-                return True
-        return False
