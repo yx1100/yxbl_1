@@ -59,7 +59,7 @@ class Werewolf(Role):
             while not consensus and rounds < max_rounds:
                 # 添加狼人1的决定给狼人2
                 werewolf_2_messages.append({"role": "user", "content":
-                                            f"""{phase_prompt}\n\n你的同伴狼人决定杀害 {wolf1_target}。你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n\n{response_prompt}"""})
+                                            f"""{phase_prompt}\n你的同伴狼人决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n\n{response_prompt}"""})
 
                 # 狼人2回应
                 werewolf_2_response = werewolf_2.client.get_response(
@@ -68,22 +68,25 @@ class Werewolf(Role):
                 werewolf_2_messages.append(
                     {"role": "assistant", "content": werewolf_2_response})
 
+                # 解析狼人1的目标
+                wolf2_target = self.extract_target(werewolf_2_response)
+
+
+
                 # 检查狼人2是否同意
-                if self.check_agreement(werewolf_2_response):
+                if wolf2_target == wolf1_target:
+                    # 狼人2同意狼人1的决定
                     # 同意，达成共识
                     consensus = True
                     final_target = wolf1_target
                     print(f"狼人2同意杀害: {final_target}")
                     break
                 else:
-                    # 不同意，提出自己的目标
-                    wolf2_target = self.extract_target(
-                        werewolf_2_response)
                     print(f"狼人2不同意，想要杀害: {wolf2_target}")
 
                     # 狼人1回应狼人2的目标
                     werewolf_1_messages.append({"role": "user", "content":
-                                                f"你原本决定杀害 {wolf1_target}，但你的同伴狼人不同意，他/她想要杀害 {wolf2_target}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n\n{response_prompt}"})
+                                                f"你原本决定杀害 {wolf1_target}，但你的同伴狼人不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n\n{response_prompt}"})
 
                     werewolf_1_response = werewolf_1.client.get_response(
                         input_messages=werewolf_1_messages)['content']
@@ -91,7 +94,7 @@ class Werewolf(Role):
                         {"role": "assistant", "content": werewolf_1_response})
 
                     # 检查狼人1是否同意狼人2的决定
-                    if self.check_agreement(werewolf_1_response):
+                    if wolf1_target == wolf2_target:
                         # 同意，达成共识
                         consensus = True
                         final_target = wolf2_target
