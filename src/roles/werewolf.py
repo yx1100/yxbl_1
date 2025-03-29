@@ -127,7 +127,7 @@ class Werewolf(Role):
             print(f"狼人决定杀害: {kill_player}")
         else:
             raise RuntimeError("Invalid werewolf count.")
-
+        
         return kill_player
 
     def check_agreement(self, response):
