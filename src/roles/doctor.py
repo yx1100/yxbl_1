@@ -1,5 +1,3 @@
-import json
-import re
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt
 
@@ -33,24 +31,7 @@ class Doctor(Role):
         doctor_messages.append(
             {"role": "assistant", "content": doctor_response})
 
-        save_player = self.extract_save_target(doctor_response)
+        save_player = self.extract_target(doctor_response)
         print(f"医生选择救助: {save_player}")
 
         return save_player
-    
-    def extract_save_target(self, response):
-        try:
-            # 尝试解析JSON
-            data = json.loads(response)
-
-            # 检查action字段是否存在
-            if 'action' in data:
-                action = data['action']
-
-                # 使用正则表达式提取"kill ID_X"中的ID_X部分
-                match = re.search(r'save (ID_\d+)', action)
-                if match:
-                    return match.group(1)
-        except:
-            # JSON解析失败，尝试直接从文本中提取
-            print("response JSON解析失败，请检查格式！")

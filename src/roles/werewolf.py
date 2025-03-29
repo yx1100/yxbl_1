@@ -1,5 +1,3 @@
-import re
-import json
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt
 
@@ -15,7 +13,7 @@ class Werewolf(Role):
         prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
 
         return prompt
-    
+
     def do_action(self, werewolf_players, response_prompt, phase_prompt, game_state):
         """
         执行狼人行动
@@ -35,7 +33,8 @@ class Werewolf(Role):
             print(f"狼人2号System Message：{werewolf_2_messages}")
 
             # 添加当前阶段提示
-            werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf', day_count=game_state.get_day_count(), player_id=werewolf_players[0].player_id)
+            werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf',
+                                                                               day_count=game_state.get_day_count(), player_id=werewolf_players[0].player_id)
             werewolf_1_messages.append(
                 {"role": "user", "content": f"{phase_prompt}\n\n{werewolf_1_night_prompt}\n\n{response_prompt}"})
             print(f"狼人1号Messages：{werewolf_1_messages}")
@@ -48,7 +47,7 @@ class Werewolf(Role):
                 {"role": "assistant", "content": werewolf_1_response})
 
             # 解析狼人1的目标
-            wolf1_target = self.extract_kill_target(werewolf_1_response)
+            wolf1_target = self.extract_target(werewolf_1_response)
             print(f"狼人1想要杀害: {wolf1_target}")
 
             # 初始化变量
@@ -78,7 +77,7 @@ class Werewolf(Role):
                     break
                 else:
                     # 不同意，提出自己的目标
-                    wolf2_target = self.extract_kill_target(
+                    wolf2_target = self.extract_target(
                         werewolf_2_response)
                     print(f"狼人2不同意，想要杀害: {wolf2_target}")
 
@@ -100,7 +99,7 @@ class Werewolf(Role):
                         break
                     else:
                         # 不同意，更新狼人1的目标
-                        wolf1_target = self.extract_kill_target(
+                        wolf1_target = self.extract_target(
                             werewolf_1_response)
                         print(f"狼人1不同意，坚持或改为杀害: {wolf1_target}")
 
@@ -124,43 +123,13 @@ class Werewolf(Role):
             print(f"唯一的狼人的回复: {werewolf_response}")
 
             # 提取狼人想要杀的目标
-            kill_player = self.extract_kill_target(werewolf_response)
+            kill_player = self.extract_target(werewolf_response)
             print(f"狼人决定杀害: {kill_player}")
         else:
             raise RuntimeError("Invalid werewolf count.")
-        
+
         return kill_player
 
-    def extract_kill_target(self, response):
-        """从狼人的回复中提取杀人目标"""
-        try:
-            # 尝试解析JSON
-            data = json.loads(response)
-
-            # 检查action字段是否存在
-            if 'action' in data:
-                action = data['action']
-
-                # 使用正则表达式提取"kill ID_X"中的ID_X部分
-                match = re.search(r'kill (ID_\d+)', action)
-                if match:
-                    return match.group(1)
-        except:
-            # JSON解析失败，尝试直接从文本中提取
-            print("response JSON解析失败，请检查格式！")
-
-        # 如果JSON解析失败或没有找到目标，尝试直接从文本中提取
-        match = re.search(r'kill (ID_\d+)', response)
-        if match:
-            return match.group(1)
-        # 如果没找到，随机选择一个存活玩家
-        alive_player_ids = [p.player_id for p in self.game_state.alive_players]
-        valid_targets = [
-            pid for pid in alive_player_ids if pid not in wolf_ids]
-        if valid_targets:
-            return random.choice(valid_targets)
-        return None
-    
     def check_agreement(self, response):
         """检查回复中是否表示同意"""
         # 简单实现：检查是否包含"同意"、"赞成"等关键词

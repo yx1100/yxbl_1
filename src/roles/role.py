@@ -1,3 +1,5 @@
+import re
+import json
 from src.utils.rules_prompt import WerewolfRolePrompt, GameRulePrompt
 
 
@@ -41,3 +43,23 @@ class Role:
         :return: None
         """
         pass
+
+    def extract_target(self, response):
+        try:
+            # 尝试解析JSON
+            data = json.loads(response)
+
+            # 检查action字段是否存在
+            if 'target' in data:
+                target = data['target']
+
+                # 使用正则表达式提取"kill ID_X"中的ID_X部分
+                match = re.search(r'(ID_\d+)', target)
+                if match:
+                    return match.group(1)
+            else:
+                # 如果没有匹配到ID，直接返回目标
+                print("没有找到目标，请检查回复格式！")
+        except:
+            # JSON解析失败，尝试直接从文本中提取
+            print("response JSON解析失败，请检查格式！")

@@ -6,6 +6,7 @@ from src.agents.llm_agent import LLMAgent
 from src.agents.human_agent import HumanAgent
 from src.roles import Werewolf
 from src.roles import Doctor
+from src.roles import Seer
 
 
 class GameManager:
@@ -116,6 +117,7 @@ class GameManager:
         # 处理狼人袭击、医生救人、预言家查验等行为
 
         print("存活玩家：", [player.player_id for player in alive_players])
+        print("存活角色：", [player.role for player in alive_players])
         # 狼人玩家
         werewolf_players = [
             player for player in alive_players if player.role == 'werewolf']
@@ -127,17 +129,26 @@ class GameManager:
         seer_player = [
             player for player in alive_players if player.role == 'seer'][0]
 
-        response_prompt = GameRulePrompt().get_response_format_prompt()
-        # 狼人阶段
+        # 1. 狼人阶段
+        print("\n==== 狼人阶段 ====")
         self.kill_player = Werewolf().do_action(
-            werewolf_players, response_prompt, phase_prompt, self.game_state)
+            werewolf_players, GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
 
         # 医生阶段
+        print("\n==== 医生阶段 ====")
         if 'doctor' in alive_roles:
             self.save_player = Doctor().do_action(
-                doctor_player, response_prompt, phase_prompt, self.game_state)
+                doctor_player, GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
         else:
             print('医生已经被杀害，跳过医生阶段...')
+
+        # 预言家阶段
+        print("\n==== 预言家阶段 ====")
+        if 'seer' in alive_roles:
+            self.check_player = Seer().do_action(
+                seer_player, GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
+        else:
+            print('预言家已经被杀害，跳过预言家阶段...')
 
         # 处理狼人杀人结果
         if self.kill_player == self.save_player:
@@ -152,24 +163,11 @@ class GameManager:
                     break
         # self.save_player = None
 
-        # 预言家阶段
-        if 'seer' in alive_roles:
-            print('一个预言家')
-            seer_agent_prompt = seer_player.client.messages
-            seer_response = seer_player.client.get_response(
-                input_messages=seer_agent_prompt)['content']
-
-            print("预言家:", seer_agent_prompt)
-
-            self.check_player = "ID_3"
-        else:
-            print('预言家已经被杀害，跳过预言家阶段...')
-
+        print("\n==== 夜晚总结 ====")
         print("被杀玩家：", self.kill_player)
         print("被救玩家：", self.save_player)
         print("被查玩家：", self.check_player)
-        print(
-            "存活玩家：", [player.player_id for player in self.game_state.alive_players])
+        print("存活玩家：", [player.player_id for player in self.game_state.alive_players])
         print("存活玩家角色：", self.game_state.alive_roles)
 
         self.end_game()

@@ -152,7 +152,7 @@ class GameRulePrompt:
 
         prompt_en = f"""Now it is the night round on the {day_count}th day, you (and your teammate) should choose one player to {action}. As player {player_id} and a {role}, you should first reason about the current situation, then perform an action."""
         prompt_cn = f"""现在是第{day_count}天的夜晚回合，你（和你的队友）应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role}，你应该先分析当前局势，然后执行一个动作。"""
-        
+
         if self.language == "en":
             return prompt_en
         else:
@@ -181,20 +181,32 @@ class GameRulePrompt:
         elif self.language == "cn":
             return phase_prompt_cn
 
-    def get_response_format_prompt(self):
+    def get_response_format_prompt(self, role):
+        if role == "werewolf":
+            action = "kill"
+        elif role == "doctor":
+            action = "save"
+        elif role == "seer":
+            action = "see"
+        else:
+            action = None
+
         response_format_prompt_cn = f"""你应该只以下面描述的JSON格式回应。回应格式：
 {{
     "reasoning": "对当前局势的分析",
-    "action": "kill/save/see 玩家ID_X"
+    "action": "{action}",
+    "target": "ID_X"
 }}
 确保回应可以被Python的json.loads解析"""
         response_format_prompt_en = f"""You should only respond in JSON format as described below.
 Response Format:
 {{
 "reasoning": "reason about the current situation",
-"action": "kill/save/see player ID_X"
+"action": "{action}",
+"target": "ID_X"
 }}
 Ensure the response can be parsed by Python json.loads"""
+
         if self.language == "en":
             return response_format_prompt_en
         else:
