@@ -67,8 +67,6 @@ class Werewolf(Role):
                 # 解析狼人1的目标
                 wolf2_target = self.extract_target(werewolf_2_response)
 
-
-
                 # 检查狼人2是否同意
                 if wolf2_target == wolf1_target:
                     # 狼人2同意狼人1的决定
@@ -83,12 +81,14 @@ class Werewolf(Role):
                     # 狼人1回应狼人2的目标
                     werewolf_1_messages.append({"role": "user", "content":
                                                 f"你原本决定杀害 {wolf1_target}，但你的同伴狼人不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n\n{response_prompt}"})
-
+                    print(f"狼人1号Messages：{werewolf_1_messages}")
                     werewolf_1_response = werewolf_1.client.get_response(
                         input_messages=werewolf_1_messages)['content']
                     werewolf_1_messages.append(
                         {"role": "assistant", "content": werewolf_1_response})
-
+                    print(f"狼人1的回复: {werewolf_1_response}")
+                    
+                    wolf1_target = self.extract_target(werewolf_1_response)
                     # 检查狼人1是否同意狼人2的决定
                     if wolf1_target == wolf2_target:
                         # 同意，达成共识
@@ -98,8 +98,6 @@ class Werewolf(Role):
                         break
                     else:
                         # 不同意，更新狼人1的目标
-                        wolf1_target = self.extract_target(
-                            werewolf_1_response)
                         print(f"狼人1不同意，坚持或改为杀害: {wolf1_target}")
 
                 rounds += 1
@@ -126,5 +124,5 @@ class Werewolf(Role):
             print(f"狼人决定杀害: {kill_player}")
         else:
             raise RuntimeError("Invalid werewolf count.")
-        
+
         return kill_player
