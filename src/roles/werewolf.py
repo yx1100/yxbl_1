@@ -25,7 +25,7 @@ class Werewolf(Role):
             werewolf_1_messages = werewolf_1.client.messages.copy()
             werewolf_2_messages = werewolf_2.client.messages.copy()
             print(f"狼人1号System Message：{werewolf_1_messages}")
-            print(f"狼人2号System Message：{werewolf_2_messages}")
+            print(f"狼人2号System Message：{werewolf_2_messages}\n")
 
             # 添加当前阶段提示
             werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf',
@@ -56,6 +56,7 @@ class Werewolf(Role):
                 werewolf_2_messages.append({"role": "user", "content":
                                             f"""{phase_prompt}\n你的同伴狼人决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n\n{response_prompt}"""})
 
+                print(f"狼人2号Messages：{werewolf_2_messages}")
                 # 狼人2回应
                 werewolf_2_response = werewolf_2.client.get_response(
                     input_messages=werewolf_2_messages)['content']
