@@ -16,7 +16,7 @@ class Werewolf(Role):
         game_rule_prompt = self.rule_prompt.get_game_rules_prompt()
         role_prompt = self.role_prompt.get_werewolf_rule_prompt()
 
-        prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
+        prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n角色游戏规则提示：\n###{role_prompt}###"""
 
         return prompt
 
@@ -25,8 +25,11 @@ class Werewolf(Role):
 
         # 两个狼人协商决策
         if len(werewolf_players) == 2:
-            werewolf_1 = werewolf_players[0] # TODO: 这里的werewolf应该是从alive_players中获取
-            werewolf_2 = werewolf_players[1] # TODO: 这里的werewolf应该是从alive_players中获取
+            werewolf_1 = werewolf_players[0]
+            werewolf_2 = werewolf_players[1]
+
+            werewolf_1_id = werewolf_1.player_id
+            werewolf_2_id = werewolf_2.player_id
             
             # 获取狼人1和狼人2的初始消息列表
             self._add_message('werewolf1', werewolf_1.client.messages.copy()[0])
@@ -36,7 +39,7 @@ class Werewolf(Role):
 
             # 添加当前阶段提示
             werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf', day_count=game_state.get_day_count(), player_id=werewolf_1.player_id)
-            self._add_message('werewolf1', {"role": "user", "content": f"{phase_prompt}\n\n{werewolf_1_night_prompt}\n\n{response_prompt}"})
+            self._add_message('werewolf1', {"role": "user", "content": f"{phase_prompt}\n{werewolf_1_night_prompt}\n你的狼人同伙是玩家{werewolf_2_id}。\n{response_prompt}"})
             print(f"狼人1号Messages：{self.werewolf_1_messages}")
 
             # 狼人1先做决定
@@ -57,7 +60,7 @@ class Werewolf(Role):
             while not consensus and rounds < max_rounds:
                 # 添加狼人1的决定给狼人2
                 werewolf_2_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf', day_count=game_state.get_day_count(), player_id=werewolf_2.player_id)
-                self._add_message('werewolf2', {"role": "user", "content": f"""{phase_prompt}\n\n{werewolf_2_night_prompt}\n你的同伴狼人决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n\n{response_prompt}"""})
+                self._add_message('werewolf2', {"role": "user", "content": f"""{phase_prompt}\n{werewolf_2_night_prompt}\n你的狼人同伙是玩家{werewolf_1_id}。\n你的狼人同伙玩家{werewolf_1_id}决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n{response_prompt}"""})
                 print(f"狼人2号Messages：{self.werewolf_2_messages}")
                 # 狼人2回应
                 werewolf_2_response = werewolf_2.client.get_response(input_messages=self.werewolf_2_messages)['content']
@@ -78,7 +81,7 @@ class Werewolf(Role):
                 else:
                     print(f"狼人2不同意，想要杀害: {wolf2_target}")
                     # 狼人1回应狼人2的目标
-                    self._add_message('werewolf1', {"role": "user", "content": f"你原本决定杀害 {wolf1_target}，但你的同伴狼人不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n\n{response_prompt}"})
+                    self._add_message('werewolf1', {"role": "user", "content": f"你原本决定杀害 {wolf1_target}，但你的同伴狼人{werewolf_2_id}不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n{response_prompt}"})
                     print(f"狼人1号Messages：{self.werewolf_1_messages}")
 
                     werewolf_1_response = werewolf_1.client.get_response(input_messages=self.werewolf_1_messages)['content']
@@ -118,7 +121,7 @@ class Werewolf(Role):
                 werewolf_messages = self.messages_manager.werewolf1_messages
             # 添加当前阶段提示词
             werewolf_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf', day_count=game_state.get_day_count(), player_id=werewolf.player_id)
-            self._add_message(player, {"role": "user", "content": f"{phase_prompt}\n\n{werewolf_night_prompt}\n\n{response_prompt}"})
+            self._add_message(player, {"role": "user", "content": f"{phase_prompt}\n{werewolf_night_prompt}\n{response_prompt}"})
 
             werewolf_response = werewolf.client.get_response(input_messages=werewolf_messages)['content']
             print("唯一的狼人的回复: "+werewolf_response)
