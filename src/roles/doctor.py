@@ -1,5 +1,5 @@
 from src.roles.role import Role
-from src.utils.rules_prompt import GameRulePrompt
+from src.utils.rules_prompt import GameRulePrompt, WerewolfRolePrompt
 
 
 class Doctor(Role):
@@ -10,16 +10,16 @@ class Doctor(Role):
         self.doctor_player = []
         if alive_players is not None:
             self.doctor_player = [
-                player for player in alive_players if player.role == 'seer'][0]
+                player for player in alive_players if player.role == 'doctor'][0]
 
         if messages_manager is not None:
             self.messages_manager = messages_manager
             self.global_conversation_history = self.messages_manager.history
             self.doctor_messages = self.messages_manager.doctor_messages
 
-    def get_role_prompt(self):
-        game_rule_prompt = self.rule_prompt.get_game_rules_prompt()
-        role_prompt = self.role_prompt.get_doctor_rule_prompt()
+    def get_role_prompt(self, player_id):
+        game_rule_prompt = GameRulePrompt().get_game_rules_prompt()
+        role_prompt = WerewolfRolePrompt(player_id).get_doctor_rule_prompt()
 
         prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
 
@@ -35,7 +35,7 @@ class Doctor(Role):
 
         # 医生夜晚阶段提示词
         doctor_night_prompt = GameRulePrompt().get_night_action_prompt(role='doctor',
-                                                                       day_count=game_state.get_day_count(), player_id=self.doctor_player.player_id)
+                                                                       day_count=game_state.get_day_count(), player_id=doctor.player_id)
         self._add_message(
             {"role": "user", "content": f"{phase_prompt}\n\n{doctor_night_prompt}\n\n{response_prompt}"})
         print(f"医生Messages：{self.doctor_messages}")

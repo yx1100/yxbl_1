@@ -1,10 +1,8 @@
 import re
 import json
-from src.utils.rules_prompt import WerewolfRolePrompt, GameRulePrompt
-
 
 class Role:
-    def __init__(self, role_name, player_id=None, players_num=6, roles_list=['werewolf', 'werewolf', 'doctor', 'seer', 'villager', 'villager'], language="cn"):
+    def __init__(self, role_name, player_id=None, players_num=6, language="cn"):
         """
         角色基类初始化
 
@@ -21,21 +19,9 @@ class Role:
             self.faction = "WEREWOLVES"
         self.player_id = player_id
         self.players_num = players_num
-        self.roles_list = roles_list
-
-        # 创建提示生成器实例
-        self.rule_prompt = GameRulePrompt(
-            players_num=players_num,
-            roles_list=roles_list,
-            language=language
-        )
-        self.role_prompt = WerewolfRolePrompt(
-            player_id=player_id,
-            language=language
-        )
 
     def get_game_rule_prompt(self):
-        return self.rule_prompt.get_game_rules_prompt()
+        pass
     
     def do_action(self):
         """

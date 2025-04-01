@@ -21,13 +21,13 @@ class LLMAgent(BaseAgent):
         role_message = ''
         # 根据角色初始化角色对象
         if role == "doctor":
-            role_message = Doctor().get_role_prompt()
+            role_message = Doctor().get_role_prompt(player_id)
         elif role == "seer":
-            role_message = Seer().get_role_prompt()
+            role_message = Seer().get_role_prompt(player_id)
         elif role == "villager":
-            role_message = Villager().get_role_prompt()
+            role_message = Villager().get_role_prompt(player_id)
         elif role == "werewolf":
-            role_message = Werewolf().get_role_prompt()
+            role_message = Werewolf().get_role_prompt(player_id)
         else:
             raise ValueError(f"Unknown role: {role}")
         self.client = LLMClient(system_message=role_message)
