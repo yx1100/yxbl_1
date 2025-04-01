@@ -74,20 +74,6 @@ class GameManager:
         print("存活玩家：", [player.player_id for player in alive_players])
         print("存活角色：", [player.role for player in alive_players])
 
-        # TODO: 各个角色应该是传入alive_players然后角色类中自己创建
-
-        # # 狼人玩家
-        # werewolf_players = [
-        #     player for player in alive_players if player.role == 'werewolf']
-        # print("狼人玩家：", [player.player_id for player in werewolf_players])
-
-        # 医生玩家
-        # doctor_player = [
-        #     player for player in alive_players if player.role == 'doctor'][0]
-        # 预言家玩家
-        # seer_player = [
-        #     player for player in alive_players if player.role == 'seer'][0]
-
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
         self.kill_player = Werewolf(alive_players, self.messages_manager).do_action(
