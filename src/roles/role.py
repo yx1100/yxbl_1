@@ -4,7 +4,7 @@ from src.utils.rules_prompt import WerewolfRolePrompt, GameRulePrompt
 
 
 class Role:
-    def __init__(self, role_name, player_id, players_num=6, roles_list=['werewolf', 'werewolf', 'doctor', 'seer', 'villager', 'villager'], language="cn"):
+    def __init__(self, role_name, player_id=None, players_num=6, roles_list=['werewolf', 'werewolf', 'doctor', 'seer', 'villager', 'villager'], language="cn"):
         """
         角色基类初始化
 

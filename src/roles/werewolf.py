@@ -3,9 +3,16 @@ from src.utils.rules_prompt import GameRulePrompt
 
 
 class Werewolf(Role):
-    def __init__(self, player_id=None, messages_manager=None, language="cn"):
-        super().__init__(role_name="werewolf", player_id=player_id, language=language)
+    def __init__(self, alive_players=None, messages_manager=None, language="cn"):
+        super().__init__(role_name="werewolf", language=language)
 
+        # 安全处理alive_players
+        self.werewolf_players = []
+        if alive_players is not None:
+            self.werewolf_players = [player for player in alive_players if player.role == 'werewolf']
+            print("狼人玩家：", [player.player_id for player in self.werewolf_players])
+
+        # 安全处理messages_manager
         if messages_manager is not None:
             self.messages_manager = messages_manager
             self.global_conversation_history = self.messages_manager.history
@@ -20,13 +27,13 @@ class Werewolf(Role):
 
         return prompt
 
-    def do_action(self, werewolf_players, response_prompt, phase_prompt, game_state):
+    def do_action(self, response_prompt, phase_prompt, game_state):
         kill_player = None
 
         # 两个狼人协商决策
-        if len(werewolf_players) == 2:
-            werewolf_1 = werewolf_players[0]
-            werewolf_2 = werewolf_players[1]
+        if len(self.werewolf_players) == 2:
+            werewolf_1 = self.werewolf_players[0]
+            werewolf_2 = self.werewolf_players[1]
 
             werewolf_1_id = werewolf_1.player_id
             werewolf_2_id = werewolf_2.player_id
@@ -109,15 +116,15 @@ class Werewolf(Role):
             else:
                 kill_player = None
                 print("狼人无法达成共识，今晚没有人被杀害")
-        elif len(werewolf_players) == 1:
+        elif len(self.werewolf_players) == 1:
             # 一个狼人直接决定
             if ...:
                 player = 'werewolf1'
-                werewolf = werewolf_players[0]
+                werewolf = self.werewolf_players[0]
                 werewolf_messages = self.messages_manager.werewolf1_messages
             else:
                 player = 'werewolf2'
-                werewolf = werewolf_players[0]
+                werewolf = self.werewolf_players[0]
                 werewolf_messages = self.messages_manager.werewolf1_messages
             # 添加当前阶段提示词
             werewolf_night_prompt = GameRulePrompt().get_night_action_prompt(role='werewolf', day_count=game_state.get_day_count(), player_id=werewolf.player_id)

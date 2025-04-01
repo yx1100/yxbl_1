@@ -2,8 +2,8 @@ from src.roles.role import Role
 
 
 class Villager(Role):
-    def __init__(self, player_id, language="cn"):
-        super().__init__(role_name="villager", player_id=player_id, language=language)
+    def __init__(self, alive_players=None, language="cn"):
+        super().__init__(role_name="villager", language=language)
 
     def get_role_prompt(self):
         game_rule_prompt = self.rule_prompt.get_game_rules_prompt()

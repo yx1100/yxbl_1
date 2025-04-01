@@ -9,7 +9,7 @@ from src.roles import Seer
 
 class GameManager:
     def __init__(self):
-        self.messages_manager = MessagesManager() # 初始化消息管理器
+        self.messages_manager = MessagesManager()  # 初始化消息管理器
         self.game_state = GameState()  # 初始化游戏状态
 
         self.kill_player = None
@@ -76,35 +76,36 @@ class GameManager:
 
         # TODO: 各个角色应该是传入alive_players然后角色类中自己创建
 
-        # 狼人玩家
-        werewolf_players = [
-            player for player in alive_players if player.role == 'werewolf']
-        print("狼人玩家：", [player.player_id for player in werewolf_players])
+        # # 狼人玩家
+        # werewolf_players = [
+        #     player for player in alive_players if player.role == 'werewolf']
+        # print("狼人玩家：", [player.player_id for player in werewolf_players])
+
         # 医生玩家
-        doctor_player = [
-            player for player in alive_players if player.role == 'doctor'][0]
+        # doctor_player = [
+        #     player for player in alive_players if player.role == 'doctor'][0]
         # 预言家玩家
-        seer_player = [
-            player for player in alive_players if player.role == 'seer'][0]
+        # seer_player = [
+        #     player for player in alive_players if player.role == 'seer'][0]
 
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
-        self.kill_player = Werewolf(messages_manager=self.messages_manager).do_action(
-            werewolf_players, GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
+        self.kill_player = Werewolf(alive_players, self.messages_manager).do_action(
+            GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
 
         # 医生阶段
         print("\n==== 医生阶段 ====")
         if 'doctor' in alive_roles:
-            self.save_player = Doctor(messages_manager=self.messages_manager).do_action(
-                doctor_player, GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
+            self.save_player = Doctor(alive_players, messages_manager=self.messages_manager).do_action(
+                GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
         else:
             print('医生已经被杀害，跳过医生阶段...')
 
         # 预言家阶段
         print("\n==== 预言家阶段 ====")
         if 'seer' in alive_roles:
-            self.check_player = Seer(messages_manager=self.messages_manager).do_action(
-                seer_player, GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
+            self.check_player = Seer(alive_players, messages_manager=self.messages_manager).do_action(
+                GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
 
