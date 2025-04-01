@@ -1,64 +1,20 @@
 import sys
-import random
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
-from src.agents.llm_agent import LLMAgent
-from src.agents.human_agent import HumanAgent
+from src.utils.messages_manager import MessagesManager
 from src.roles import Werewolf
 from src.roles import Doctor
 from src.roles import Seer
 
 
 class GameManager:
-    def __init__(self, players_count=6):
-        self.players_count = players_count
-        self.game_state = None
-        self.game_agents = []
+    def __init__(self):
+        self.messages_manager = MessagesManager() # 初始化消息管理器
+        self.game_state = GameState()  # 初始化游戏状态
 
         self.kill_player = None
         self.save_player = None
         self.check_player = None
-
-    def setup_game(self):
-        # 设置游戏环境和玩家
-        # 计算村民数量
-        villagers_count = self.players_count - 4  # 1 doctor, 2 werewolves, 1 seer
-        if villagers_count < 0:
-            raise ValueError(
-                "Player count must be at least 4 to have all required roles")
-
-        # 创建角色列表
-        player_role_list = ['doctor'] + ['werewolf'] * \
-            2 + ['seer'] + ['villager'] * villagers_count
-        # 随机打乱角色列表
-        random.shuffle(player_role_list)
-
-        # 创建玩家ID列表,格式为"ID_X"。
-        player_id_list = [f"ID_{i}" for i in range(1, self.players_count + 1)]
-
-        # 随机选择一个ID作为人类玩家
-        human_player_id = random.choice(player_id_list)
-
-        # 创建玩家代理
-        agents = []
-        for player_id, role in zip(player_id_list, player_role_list):
-            # 根据角色确定阵营
-            faction = "WEREWOLVES" if role == "werewolf" else "VILLAGERS"
-
-            # 根据ID创建人类或AI代理
-            if player_id == human_player_id:
-                # agent = HumanAgent(player_id=player_id, role=role, faction=faction)
-                agent = LLMAgent(player_id=player_id,
-                                 role=role, faction=faction)
-            else:
-                agent = LLMAgent(player_id=player_id,
-                                 role=role, faction=faction)
-            agents.append(agent)
-
-        self.game_state = GameState(agents)
-        self.game_agents = agents
-
-        return self.game_agents
 
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
@@ -95,8 +51,9 @@ class GameManager:
             self.vote_phase()
 
         # 推进到下一阶段
-        next_phase = self.game_state.advance_phase()
-        return next_phase
+        self.game_state.advance_phase()
+
+        return None
 
     def night_phase(self, alive_players, alive_roles, phase_prompt):
         """处理夜晚阶段"""
@@ -116,6 +73,9 @@ class GameManager:
 
         print("存活玩家：", [player.player_id for player in alive_players])
         print("存活角色：", [player.role for player in alive_players])
+
+        # TODO: 各个角色应该是传入alive_players然后角色类中自己创建
+
         # 狼人玩家
         werewolf_players = [
             player for player in alive_players if player.role == 'werewolf']
@@ -129,13 +89,13 @@ class GameManager:
 
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
-        self.kill_player = Werewolf().do_action(
+        self.kill_player = Werewolf(messages_manager=self.messages_manager).do_action(
             werewolf_players, GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
 
         # 医生阶段
         print("\n==== 医生阶段 ====")
         if 'doctor' in alive_roles:
-            self.save_player = Doctor().do_action(
+            self.save_player = Doctor(messages_manager=self.messages_manager).do_action(
                 doctor_player, GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
         else:
             print('医生已经被杀害，跳过医生阶段...')
@@ -143,7 +103,7 @@ class GameManager:
         # 预言家阶段
         print("\n==== 预言家阶段 ====")
         if 'seer' in alive_roles:
-            self.check_player = Seer().do_action(
+            self.check_player = Seer(messages_manager=self.messages_manager).do_action(
                 seer_player, GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
@@ -165,7 +125,8 @@ class GameManager:
         print("被杀玩家：", self.kill_player)
         print("被救玩家：", self.save_player)
         print("被查玩家：", self.check_player)
-        print("存活玩家：", [player.player_id for player in self.game_state.alive_players])
+        print(
+            "存活玩家：", [player.player_id for player in self.game_state.alive_players])
         print("存活玩家角色：", self.game_state.alive_roles)
 
         self._if_game_over()

@@ -1,12 +1,20 @@
+import random
+from src.agents.llm_agent import LLMAgent
+from src.agents.human_agent import HumanAgent
+
+
 class GameState:
     """
     游戏状态类：管理狼人杀游戏的所有状态信息，包括玩家、阵营、游戏阶段等
     """
-    def __init__(self, players):
+
+    def __init__(self):
         """
         初始化游戏状态
         :param players: 游戏玩家列表
         """
+
+        players = self._set_players_agent()
         self.initial_players = players.copy()  # 初始玩家列表（使用复制避免引用问题）
         self.alive_players = players.copy()  # 存活玩家列表（初始时与初始玩家相同）
         self.roles = []  # 所有玩家的角色信息列表
@@ -23,7 +31,8 @@ class GameState:
             elif player.faction == 'WEREWOLVES':
                 self.werewolves_players.append(player)
             else:
-                raise ValueError(f"Invalid faction: {player.faction} for player {player.name if hasattr(player, 'name') else player}")
+                raise ValueError(
+                    f"Invalid faction: {player.faction} for player {player.name if hasattr(player, 'name') else player}")
 
         self.day_count = 1  # 游戏天数，从第1天开始
         self.phase = "NIGHT"  # 当前游戏阶段，可选值为"NIGHT"(夜晚), "DAY"(白天), "VOTE"(投票)
@@ -51,7 +60,7 @@ class GameState:
         :return: 角色信息列表
         """
         return self.roles
-    
+
     def get_alive_players_role(self):
         """
         获取存活玩家角色信息
@@ -62,7 +71,7 @@ class GameState:
             alive_roles.append(player.role)
         self.alive_roles = alive_roles
         return self.alive_roles
-    
+
     def get_alive_players_id(self):
         """
         获取存活玩家角色信息
@@ -119,9 +128,47 @@ class GameState:
             self.phase = "NIGHT"
             self.update_day_count()
         return self.phase
-        
+
     def get_winner_faction(self):
         if self.game_is_over is False:
             return print("游戏尚未结束")
         else:
             return print(f"游戏获胜方是：{self.winner}")
+
+    def _set_players_agent(self, players_count=6):
+        # 设置游戏环境和玩家
+        # 计算村民数量
+        villagers_count = players_count - 4  # 1 doctor, 2 werewolves, 1 seer
+        if villagers_count < 0:
+            raise ValueError(
+                "Player count must be at least 4 to have all required roles")
+
+        # 创建角色列表
+        player_role_list = ['doctor'] + ['werewolf'] * \
+            2 + ['seer'] + ['villager'] * villagers_count
+        # 随机打乱角色列表
+        random.shuffle(player_role_list)
+
+        # 创建玩家ID列表,格式为"ID_X"。
+        player_id_list = [f"ID_{i}" for i in range(1, players_count + 1)]
+
+        # 随机选择一个ID作为人类玩家
+        human_player_id = random.choice(player_id_list)
+
+        # 创建玩家代理
+        agents = []
+        for player_id, role in zip(player_id_list, player_role_list):
+            # 根据角色确定阵营
+            faction = "WEREWOLVES" if role == "werewolf" else "VILLAGERS"
+
+            # 根据ID创建人类或AI代理
+            if player_id == human_player_id:
+                # agent = HumanAgent(player_id=player_id, role=role, faction=faction)
+                agent = LLMAgent(player_id=player_id,
+                                 role=role, faction=faction)
+            else:
+                agent = LLMAgent(player_id=player_id,
+                                 role=role, faction=faction)
+            agents.append(agent)
+
+        return agents
