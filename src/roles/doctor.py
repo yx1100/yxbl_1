@@ -31,14 +31,14 @@ class Doctor(Role):
 
         # 医生系统消息(System Message)
         self._add_message(doctor.client.messages.copy()[0])
-        print(f"医生System Message：{self.doctor_messages[0]}")
+        # print(f"医生System Message：{self.doctor_messages[0]}")
 
         # 医生夜晚阶段提示词
         doctor_night_prompt = GameRulePrompt().get_night_action_prompt(role='doctor',
                                                                        day_count=game_state.get_day_count(), player_id=doctor.player_id)
         self._add_message(
             {"role": "user", "content": f"{phase_prompt}\n\n{doctor_night_prompt}\n\n{response_prompt}"})
-        print(f"医生Messages：{self.doctor_messages}")
+        # print(f"医生Messages：{self.doctor_messages}")
 
         # 医生夜晚阶段回复
         doctor_response = doctor.client.get_response(

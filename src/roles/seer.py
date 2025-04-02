@@ -31,14 +31,14 @@ class Seer(Role):
 
         # 预言家系统消息(System Message)
         self._add_message(seer.client.messages.copy()[0])
-        print(f"预言家System Message：{self.seer_messages[0]}")
+        # print(f"预言家System Message：{self.seer_messages[0]}")
 
         # 预言家夜晚阶段提示词
         seer_night_prompt = GameRulePrompt().get_night_action_prompt(
             role='seer', day_count=game_state.get_day_count(), player_id=seer.player_id)
         self._add_message(
             {"role": "user", "content": f"{phase_prompt}\n\n{seer_night_prompt}\n\n{response_prompt}"})
-        print(f"预言家Messages：{self.seer_messages}")
+        # print(f"预言家Messages：{self.seer_messages}")
 
         # 预言家夜晚阶段回复
         seer_response = seer.client.get_response(

@@ -113,7 +113,8 @@ class GameState:
             print("游戏已结束")  # 游戏已结束时不更新天数
         else:
             self.day_count = self.day_count + 1
-            print(f"当前是：第 {self.day_count} 天。\n新的一天开始...")
+            print("====================")
+            print(f"\n当前是：第 {self.day_count} 天。新的一天开始...")
 
     def get_current_phase(self):
         return self.phase

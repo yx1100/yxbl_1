@@ -90,6 +90,10 @@ class GameRulePrompt:
         self.roles_list = roles_list
         self.language = language
 
+    def get_last_night_info_prompt(self, current_day, killed_player, alive_players_id):
+        last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜被杀死的玩家是：{killed_player}。目前存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
+        return last_night_info_prompt_cn
+
     def get_game_rules_prompt(self):
         game_rules_prompt_en = f"""You are playing a game called Werewolf with other players. This game is based on text conversations. Here are the game rules:
 - There are {self.players_num} roles in the game: {self.roles_list}. You are playing with {self.players_num - 1} other players.
