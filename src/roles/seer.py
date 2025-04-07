@@ -1,10 +1,11 @@
+from src.utils.config import LANGUAGE
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt, WerewolfRolePrompt
 
 
 class Seer(Role):
-    def __init__(self, language="cn"):
-        super().__init__(role_name="seer", language=language)
+    def __init__(self):
+        super().__init__(role_name="seer", language=LANGUAGE)
 
         self.seer_messages = []  # 预言家的消息列表
 

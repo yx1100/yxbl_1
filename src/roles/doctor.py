@@ -1,10 +1,11 @@
+from src.utils.config import LANGUAGE
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt, WerewolfRolePrompt
 
 
 class Doctor(Role):
-    def __init__(self, language="cn"):
-        super().__init__(role_name="doctor", language=language)
+    def __init__(self):
+        super().__init__(role_name="doctor", language=LANGUAGE)
 
         self.doctor_messages = []  # 医生的消息列表
 

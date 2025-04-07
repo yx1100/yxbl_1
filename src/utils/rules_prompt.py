@@ -1,5 +1,7 @@
+from src.utils.config import LANGUAGE
+
 class WerewolfRolePrompt:
-    def __init__(self, player_id, language='cn'):
+    def __init__(self, player_id, language=LANGUAGE):
         self.player_id = player_id
         self.language = language
 

@@ -1,10 +1,11 @@
+from src.utils.config import LANGUAGE
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt, WerewolfRolePrompt
 
 
 class Werewolf(Role):
-    def __init__(self, language="cn"):
-        super().__init__(role_name="werewolf", language=language)
+    def __init__(self):
+        super().__init__(role_name="werewolf", language=LANGUAGE)
 
         self.werewolf_1_messages = []
         self.werewolf_2_messages = []
