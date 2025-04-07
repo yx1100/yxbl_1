@@ -12,9 +12,9 @@ class GameManager:
         self.messages_manager = MessagesManager()  # 初始化消息管理器
         self.game_state = GameState()  # 初始化游戏状态
 
-        self.alive_players = None
-        self.alive_players_id = None
-        self.alive_roles = None
+        self.alive_players = [] # 存活玩家列表
+        self.alive_players_id = [] # 存活玩家ID列表
+        self.alive_roles = [] # 存活角色列表
 
         self.kill_player = None
         self.save_player = None
@@ -24,8 +24,7 @@ class GameManager:
         """根据当前阶段运行相应的处理方法"""
         # 确保游戏状态已初始化
         if self.game_state is None:
-            raise RuntimeError(
-                "Game state not initialized. Please setup game first.")
+            raise RuntimeError("Game state not initialized. Please setup game first.")
 
         # 1. 判断游戏是否结束
         self._if_game_over()
@@ -41,14 +40,12 @@ class GameManager:
         current_phase = self.game_state.get_current_phase()
         print(f"当前游戏阶段：{current_phase}")
         # 5. 获取当前阶段提示词
-        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count,
-                                                         phase=current_phase, alive_players=self.alive_players_id)
+        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count, phase=current_phase, alive_players=self.alive_players_id)
         print(f"当前阶段提示词：{phase_prompt}")
 
         # 执行当前阶段的逻辑
         if current_phase == "NIGHT":
             self.night_phase(phase_prompt)
-            self.day_phase()
         elif current_phase == "DAY":
             self.day_phase()
         elif current_phase == "VOTE":
@@ -69,8 +66,7 @@ class GameManager:
         """
         # 确保游戏状态已初始化
         if self.game_state is None:
-            raise RuntimeError(
-                "Game state not initialized. Please setup game first.")
+            raise RuntimeError("Game state not initialized. Please setup game first.")
 
         print("\n==== 夜晚降临 ====")
         # 处理狼人袭击、医生救人、预言家查验等行为
@@ -80,22 +76,19 @@ class GameManager:
 
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
-        self.kill_player = Werewolf(self.alive_players, self.messages_manager).do_action(
-            GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
+        self.kill_player = Werewolf().do_action(self.alive_players, GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
 
-        # 医生阶段
+        # 2. 医生阶段
         print("\n==== 医生阶段 ====")
         if 'doctor' in self.alive_roles:
-            self.save_player = Doctor(self.alive_players, messages_manager=self.messages_manager).do_action(
-                GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
+            self.save_player = Doctor().do_action(self.alive_players, GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
         else:
             print('医生已经被杀害，跳过医生阶段...')
 
         # 预言家阶段
         print("\n==== 预言家阶段 ====")
         if 'seer' in self.alive_roles:
-            self.check_player = Seer(self.alive_players, messages_manager=self.messages_manager).do_action(
-                GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
+            self.check_player = Seer().do_action(self.alive_players, GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
 

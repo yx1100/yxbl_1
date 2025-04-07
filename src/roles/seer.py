@@ -3,31 +3,19 @@ from src.utils.rules_prompt import GameRulePrompt, WerewolfRolePrompt
 
 
 class Seer(Role):
-    def __init__(self, alive_players=None, messages_manager=None, language="cn"):
+    def __init__(self, language="cn"):
         super().__init__(role_name="seer", language=language)
 
-        # 安全处理alive_players
-        self.seer_player = []
+        self.seer_messages = []  # 预言家的消息列表
+
+    def do_action(self, alive_players, response_prompt, phase_prompt, game_state):
+        # 获取当前存活玩家中的预言家玩家
         if alive_players is not None:
-            self.seer_player = [
-                player for player in alive_players if player.role == 'seer'][0]
+            seer = [player for player in alive_players if player.role == 'seer'][0]
+        else:
+            raise RuntimeError("预言家已经死了，无法进行操作。")
 
-        if messages_manager is not None:
-            self.messages_manager = messages_manager
-            self.global_conversation_history = self.messages_manager.history
-            self.seer_messages = self.messages_manager.seer_messages
-
-    def get_role_prompt(self, player_id):
-        game_rule_prompt = GameRulePrompt().get_game_rules_prompt()
-        role_prompt = WerewolfRolePrompt(player_id).get_seer_rule_prompt()
-
-        prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
-
-        return prompt
-
-    def do_action(self, response_prompt, phase_prompt, game_state):
         check_player = None  # 预言家查验的玩家
-        seer = self.seer_player
 
         # 预言家系统消息(System Message)
         self._add_message(seer.client.messages.copy()[0])
@@ -53,4 +41,17 @@ class Seer(Role):
         return check_player
 
     def _add_message(self, message):
-        self.messages_manager.add_message(role='seer', content=message)
+        """
+        添加消息到预言家消息列表
+        Args:
+            message (dict): 消息内容
+        """
+        self.seer_messages.append(message)
+
+    def get_role_prompt(self, player_id):
+        game_rule_prompt = GameRulePrompt().get_game_rules_prompt()
+        role_prompt = WerewolfRolePrompt(player_id).get_seer_rule_prompt()
+
+        prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
+
+        return prompt
