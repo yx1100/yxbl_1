@@ -2,7 +2,7 @@ import sys
 from src.utils.config import MESSAGES_FILE_PATH
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
-from src.utils.messages_manager import MessagesManager
+from src.utils.messages_manager import MessagesManager, Role, Phase, MessageType
 from src.roles import Werewolf
 from src.roles import Doctor
 from src.roles import Seer
@@ -44,6 +44,15 @@ class GameManager:
         phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count, phase=current_phase, alive_players=self.alive_players_id)
         print(f"当前阶段提示词：{phase_prompt}")
 
+        self.messages_manager.add_message(
+            player_id="system",
+            role='Host',
+            day_count=current_day_count,
+            phase=current_phase,
+            message_type='PUBLIC',
+            content=phase_prompt
+        )
+
         # 执行当前阶段的逻辑
         if current_phase == "NIGHT":
             self.night_phase(phase_prompt)
@@ -78,7 +87,7 @@ class GameManager:
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
         role_prompt = GameRulePrompt().get_response_format_prompt("werewolf")
-        self.kill_player = Werewolf().do_action(self.alive_players, role_prompt, phase_prompt, self.game_state)
+        self.kill_player = Werewolf(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
 
         # 2. 医生阶段
         print("\n==== 医生阶段 ====")

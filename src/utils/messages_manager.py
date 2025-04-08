@@ -23,10 +23,10 @@ class Message:
     def __init__(self, 
                  number: int, 
                  player_id: str, 
-                 role: Role, 
+                 role: str, 
                  day_count: int,
-                 phase: Phase, 
-                 message_type: MessageType, 
+                 phase: str, 
+                 message_type: str, 
                  content: str,
                  ):
         self.number = number
@@ -41,10 +41,10 @@ class Message:
         return {
             "number": self.number,
             "player_id": self.player_id,
-            "role": self.role.value,
+            "role": self.role,
             "day_count": self.day_count,
-            "phase": self.phase.value,
-            "message_type": self.message_type.value,
+            "phase": self.phase,
+            "message_type": self.message_type,
             "content": self.content            
         }
     
@@ -53,10 +53,10 @@ class Message:
         return cls(
             number=data["number"],
             player_id=data["player_id"],
-            role=Role(data["role"]),
+            role=data["role"],
             day_count=data.get("day_count", 1),
-            phase=Phase(data["phase"]),
-            message_type=MessageType(data["message_type"]),
+            phase=data["phase"],
+            message_type=data["message_type"],
             content=data["content"]
         )
 
