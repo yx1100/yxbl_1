@@ -1,9 +1,10 @@
+from src.utils.config import LANGUAGE, MESSAGES_FILE_PATH
 import re
 import json
-from src.utils.messages_manager import MessagesManager, Role as RoleEnum, Phase, MessageType
+from src.utils.messages_manager import MessagesManager
 
 class Role:
-    def __init__(self, role_name, player_id=None, players_num=6, language="cn", messages_manager=None, messages_file_path=None):
+    def __init__(self, role_name, player_id=None, players_num=6, language=LANGUAGE):
         """
         角色基类初始化
 
@@ -25,19 +26,7 @@ class Role:
         self.language = language
         
         # 初始化消息管理器
-        if messages_manager:
-            self.messages_manager = messages_manager
-        else:
-            self.messages_manager = MessagesManager(messages_file_path)
-        
-        # 角色名称到枚举的映射
-        self.role_enum_map = {
-            'doctor': RoleEnum.DOCTOR,
-            'seer': RoleEnum.SEER,
-            'villager': RoleEnum.VILLAGER,
-            'werewolf': RoleEnum.WEREWOLF,
-            'host': RoleEnum.HOST
-        }
+        self.messages_manager = MessagesManager(MESSAGES_FILE_PATH)
 
     def get_role_prompt(self, player_id):
         """
@@ -101,7 +90,7 @@ class Role:
                 return match.group(1)
             return None
 
-    def send_message(self, content, day_count, phase, message_type=MessageType.PRIVATE):
+    def _save_message(self, role, day_count, phase, message_type="private", content=None):
         """
         发送消息
         
@@ -114,41 +103,11 @@ class Role:
         Returns:
             Message: 创建的消息对象
         """
-        role_enum = self.role_enum_map.get(self.role_name.lower(), RoleEnum.VILLAGER)
-        return self.messages_manager.add_message(
+        self.messages_manager.add_message(
             player_id=self.player_id,
-            role=role_enum,
+            role=role,
             day_count=day_count,
             phase=phase,
             message_type=message_type,
             content=content
         )
-    
-    def get_messages(self, player_id=None, day_count=None, phase=None, message_type=None):
-        """
-        获取过滤后的消息
-        
-        Args:
-            player_id (str, optional): 筛选特定玩家的消息
-            day_count (int, optional): 筛选特定天数的消息
-            phase (Phase, optional): 筛选特定阶段的消息
-            message_type (MessageType, optional): 筛选特定类型的消息
-            
-        Returns:
-            List[Message]: 符合条件的消息列表
-        """
-        messages = self.messages_manager.get_messages()
-        filtered_messages = []
-        
-        for msg in messages:
-            if player_id and msg.player_id != player_id:
-                continue
-            if day_count and msg.day_count != day_count:
-                continue
-            if phase and msg.phase != phase:
-                continue
-            if message_type and msg.message_type != message_type:
-                continue
-            filtered_messages.append(msg)
-            
-        return filtered_messages

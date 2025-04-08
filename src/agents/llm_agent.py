@@ -1,9 +1,6 @@
 from src.agents.base_agent import BaseAgent
 from src.utils.llm_client import LLMClient
-from src.roles.doctor import Doctor
-from src.roles.seer import Seer
-from src.roles.villager import Villager
-from src.roles.werewolf import Werewolf
+from src.utils.rules_prompt import GameRulePrompt
 
 
 class LLMAgent(BaseAgent):
@@ -20,14 +17,5 @@ class LLMAgent(BaseAgent):
 
         role_message = ''
         # 根据角色初始化角色对象
-        if role == "doctor":
-            role_message = Doctor().get_role_prompt(player_id)
-        elif role == "seer":
-            role_message = Seer().get_role_prompt(player_id)
-        elif role == "villager":
-            role_message = Villager().get_role_prompt(player_id)
-        elif role == "werewolf":
-            role_message = Werewolf().get_role_prompt(player_id)
-        else:
-            raise ValueError(f"Unknown role: {role}")
+        role_message = GameRulePrompt().get_role_prompt(role=role, player_id=player_id)
         self.client = LLMClient(system_message=role_message)

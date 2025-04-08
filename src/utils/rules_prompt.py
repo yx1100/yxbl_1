@@ -87,7 +87,7 @@ Players killed during the night phase will be announced."""
 
 
 class GameRulePrompt:
-    def __init__(self, players_num=6, roles_list=['werewolf', 'werewolf', 'doctor', 'seer', 'villager', 'villager'], language="cn"):
+    def __init__(self, players_num=6, roles_list=['werewolf', 'werewolf', 'doctor', 'seer', 'villager', 'villager'], language=LANGUAGE):
         self.players_num = players_num
         self.roles_list = roles_list
         self.language = language
@@ -220,3 +220,20 @@ Ensure the response can be parsed by Python json.loads"""
             return response_format_prompt_en
         else:
             return response_format_prompt_cn
+
+    def get_role_prompt(self, player_id, role):
+        game_rule_prompt = self.get_game_rules_prompt()
+        if role == "werewolf":
+            role_prompt = WerewolfRolePrompt(player_id).get_werewolf_rule_prompt()
+        elif role == "doctor":
+            role_prompt = WerewolfRolePrompt(player_id).get_doctor_rule_prompt()
+        elif role == "seer":
+            role_prompt = WerewolfRolePrompt(player_id).get_seer_rule_prompt()
+        elif role == "villager":
+            role_prompt = WerewolfRolePrompt(player_id).get_villager_rule_prompt()
+        else:
+            raise ValueError(f"Unknown role: {role}")
+
+        prompt = f"""全局游戏规则提示：\n###{game_rule_prompt}###\n\n角色游戏规则提示：\n###{role_prompt}###"""
+
+        return prompt

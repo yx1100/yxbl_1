@@ -1,4 +1,5 @@
 import sys
+from src.utils.config import MESSAGES_FILE_PATH
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
 from src.utils.messages_manager import MessagesManager
@@ -9,7 +10,7 @@ from src.roles import Seer
 
 class GameManager:
     def __init__(self):
-        self.messages_manager = MessagesManager()  # 初始化消息管理器
+        self.messages_manager = MessagesManager(MESSAGES_FILE_PATH)  # 初始化消息管理器
         self.game_state = GameState()  # 初始化游戏状态
 
         self.alive_players = [] # 存活玩家列表
@@ -76,7 +77,8 @@ class GameManager:
 
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
-        self.kill_player = Werewolf().do_action(self.alive_players, GameRulePrompt().get_response_format_prompt("werewolf"), phase_prompt, self.game_state)
+        role_prompt = GameRulePrompt().get_response_format_prompt("werewolf")
+        self.kill_player = Werewolf().do_action(self.alive_players, role_prompt, phase_prompt, self.game_state)
 
         # 2. 医生阶段
         print("\n==== 医生阶段 ====")

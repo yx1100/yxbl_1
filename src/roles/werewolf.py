@@ -14,9 +14,9 @@ class Werewolf(Role):
         # 获取当前存活玩家中的狼人玩家
         werewolf_players = []
         if alive_players is not None:
-            werewolf_players = [player for player in alive_players if player.role == 'werewolf']
-            print(
-                "狼人玩家：", [player.player_id for player in werewolf_players])
+            werewolf_players = [
+                player for player in alive_players if player.role == 'werewolf']
+            print("狼人玩家：", [player.player_id for player in werewolf_players])
         else:
             raise RuntimeError("No alive werewolf players found.")
 
