@@ -1,23 +1,24 @@
 from src.utils.config import LANGUAGE
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt
+from src.utils.game_enum import GameRole, MessageType
 
 
 class Werewolf(Role):
-    def __init__(self, game_state, messages_manager):
-        super().__init__(role_name="werewolf", language=LANGUAGE)
+    def __init__(self, alive_players, day_count, phase, messages_manager):
+        super().__init__(role_name=GameRole.WEREWOLF, language=LANGUAGE)
 
-        self.game_state = game_state  # 游戏状态
+        # self.game_state = game_state  # 游戏状态
         self.messages_manager = messages_manager  # 消息管理器
 
-        self.alive_players = self.game_state.get_alive_players()  # 获取存活玩家
-        self.day_count = self.game_state.get_day_count()  # 获取当前游戏天数
-        self.current_phase = self.game_state.get_current_phase()  # 获取当前阶段
+        alive_players = alive_players  # 获取存活玩家
+        self.day_count = day_count  # 获取当前游戏天数
+        self.current_phase = phase  # 获取当前阶段
 
         self.werewolf_players = []
-        if self.alive_players is not None:
+        if alive_players is not None:
             self.werewolf_players = [
-                player for player in self.alive_players if player.role == self.role_name]
+                player for player in alive_players if player.role == self.role_name]
             print(
                 "狼人玩家：", [player.player_id for player in self.werewolf_players])
         else:
@@ -29,8 +30,8 @@ class Werewolf(Role):
         self.werewolf_1_id = self.werewolf_1.player_id  # 狼人1的ID
         self.werewolf_2_id = self.werewolf_2.player_id  # 狼人2的ID
 
-        self.werewolf_1_messages = []
-        self.werewolf_2_messages = []
+        self.werewolf_1_messages = self.werewolf_1.messages
+        self.werewolf_2_messages = self.werewolf_2.messages
 
     def do_action(self, response_prompt, phase_prompt):
         kill_player = None
@@ -43,15 +44,15 @@ class Werewolf(Role):
             werewolf_1_id = self.werewolf_1_id
             werewolf_2_id = self.werewolf_2_id
 
-            # 获取狼人1和狼人2的System Message
+            # TODO: 获取狼人1和狼人2的System Message
             self._add_message(player='werewolf_1',
                               player_id=werewolf_1_id,
-                              message_type='ROLE',
-                              message=werewolf_1.client.messages.copy()[0])
+                              message_type=MessageType.PRIVATE,
+                              message=self.werewolf_1_messages[0]['content'])
             self._add_message(player='werewolf_2',
                               player_id=werewolf_2_id,
-                              message_type='ROLE',
-                              message=werewolf_2.client.messages.copy()[0])
+                              message_type=MessageType.PRIVATE,
+                              message=self.werewolf_2_messages[0]['content'])
             # print(f"狼人1号System Message：{self.werewolf_1_messages}")
             # print(f"狼人2号System Message：{self.werewolf_2_messages}\n")
 
@@ -153,7 +154,7 @@ class Werewolf(Role):
 
             return kill_player
 
-    def _add_message(self, player, player_id, message_type='PRIVATE', message=None):
+    def _add_message(self, player, player_id, message_type=MessageType.PRIVATE, message=None):
         if player == 'werewolf_1':
             self.werewolf_1_messages.append(message)
         elif player == 'werewolf_2':
@@ -162,7 +163,7 @@ class Werewolf(Role):
         self.messages_manager.add_message(
             player_id=player_id,
             role=self.role_name,
-            day_count=int(self.day_count),
+            day_count=self.day_count,
             phase=self.current_phase,
             message_type=message_type,
             content=message

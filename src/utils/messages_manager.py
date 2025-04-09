@@ -38,10 +38,10 @@ class Message:
         return cls(
             number=data["number"],
             player_id=data["player_id"],
-            role=data["role"],
+            role=GameRole(data["role"]),  # 字符串转回枚举类型
             day_count=data.get("day_count", 1),
-            phase=data["phase"],
-            message_type=data["message_type"],
+            phase=GamePhase(data["phase"]),  # 字符串转回枚举类型
+            message_type=MessageType(data["message_type"]),  # 字符串转回枚举类型
             content=data["content"]
         )
 
