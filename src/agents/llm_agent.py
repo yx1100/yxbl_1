@@ -38,6 +38,12 @@ class LLMAgent(BaseAgent):
             content: 消息内容
         """
         self.messages.append({"role": role.value, "content": content})
+    
+    def get_messages(self):
+        """
+        获取LLM messages数组
+        """
+        return self.messages
 
 # test
 # agent = LLMAgent(player_id="ID_1", role="werewolf")
