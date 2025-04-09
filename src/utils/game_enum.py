@@ -20,3 +20,7 @@ class GameRole(Enum):
 class GameFaction(Enum):
     VILLAGERS = "VILLAGERS"
     WEREWOLVES = "WEREWOLVES"
+
+class MessageType(Enum):
+    PRIVATE = "PRIVATE"
+    PUBLIC = "PUBLIC"
