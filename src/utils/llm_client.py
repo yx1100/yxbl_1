@@ -3,7 +3,7 @@ from openai import OpenAI
 
 
 class LLMClient:
-    def __init__(self, api_key=None, model="qwen-plus", system_message="You are a helpful assistant."):
+    def __init__(self, api_key=None, model="qwen-plus"):
         """
         初始化 LLM 客户端
 
@@ -16,7 +16,7 @@ class LLMClient:
         if api_key is None:
             api_key = os.getenv("DASHSCOPE_API_KEY")
         else:
-            print("Using custom API key")
+            print("No API, please using custom API key")
 
         # 初始化客户端
         self.client = OpenAI(
@@ -27,12 +27,7 @@ class LLMClient:
         # 设置使用的模型
         self.model = model
 
-        # 初始化消息列表
-        self.messages = [
-            {'role': 'system', 'content': system_message}
-        ]
-
-    def get_response(self, input_messages):
+    def get_response(self, messages):
         """
         调用 LLM API 获取回复
 
@@ -52,7 +47,7 @@ class LLMClient:
         try:
             completion = self.client.chat.completions.create(
                 model=self.model,
-                messages=input_messages
+                messages=messages
             )
             return {
                 "success": True,

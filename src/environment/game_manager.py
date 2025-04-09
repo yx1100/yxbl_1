@@ -2,7 +2,7 @@ import sys
 from src.utils.config import MESSAGES_FILE_PATH
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
-from src.utils.messages_manager import MessagesManager, Role, Phase, MessageType
+from src.utils.messages_manager import MessagesManager
 from src.roles import Werewolf
 from src.roles import Doctor
 from src.roles import Seer
@@ -13,10 +13,26 @@ class GameManager:
         self.messages_manager = MessagesManager(MESSAGES_FILE_PATH)  # 初始化消息管理器
         self.game_state = GameState()  # 初始化游戏状态
 
-        self.alive_players = [] # 存活玩家列表
-        self.alive_players_id = [] # 存活玩家ID列表
-        self.alive_roles = [] # 存活角色列表
+        self.init_alive_players = self.game_state.get_alive_players() # 游戏初始化，存活玩家列表
+        self.init_alive_players_id = [player.player_id for player in self.init_alive_players] # 存活玩家ID列表
+        self.init_alive_roles = self.game_state.get_alive_players_role() # 存活角色列表
 
+        prompt = f"""本场游戏初始玩家共有{len(self.init_alive_players)}人，分别是{self.init_alive_players_id}。"""
+        print(prompt)
+        self.messages_manager.add_message(
+            player_id="system",
+            role='Host',
+            day_count=0,
+            phase="INIT",
+            message_type='PUBLIC',
+            content=prompt
+        )
+        print(f"玩家角色分别是：{self.init_alive_roles}。\n======================\n")
+
+        self.alive_players = self.init_alive_players
+        self.alive_players_id = self.init_alive_players_id
+        self.alive_roles = self.init_alive_roles
+   
         self.kill_player = None
         self.save_player = None
         self.check_player = None
@@ -31,9 +47,9 @@ class GameManager:
         self._if_game_over()
 
         # 2. 获取当前存活玩家
-        self.alive_players = self.game_state.get_alive_players()
-        self.alive_players_id = [player.player_id for player in self.alive_players]  # 获取存活玩家ID列表
-        self.alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
+        alive_players = self.game_state.get_alive_players()
+        alive_players_id = [player.player_id for player in alive_players]  # 获取存活玩家ID列表
+        # alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
         # 3. 获取当前天数
         current_day_count = self.game_state.get_day_count()  # 获取当前游戏天数
         print(f"当前游戏天数：{self.game_state.day_count}")
@@ -41,7 +57,7 @@ class GameManager:
         current_phase = self.game_state.get_current_phase()
         print(f"当前游戏阶段：{current_phase}")
         # 5. 获取当前阶段提示词
-        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count, phase=current_phase, alive_players=self.alive_players_id)
+        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count, phase=current_phase, alive_players=alive_players_id)
         print(f"当前阶段提示词：{phase_prompt}")
 
         self.messages_manager.add_message(
@@ -53,16 +69,20 @@ class GameManager:
             content=phase_prompt
         )
 
-        # 执行当前阶段的逻辑
-        if current_phase == "NIGHT":
-            self.night_phase(phase_prompt)
-        elif current_phase == "DAY":
-            self.day_phase()
-        elif current_phase == "VOTE":
-            self.vote_phase()
+        # # 执行当前阶段的逻辑
+        # if current_phase == "NIGHT":
+        #     self.night_phase(phase_prompt)
+        # elif current_phase == "DAY":
+        #     self.day_phase()
+        # elif current_phase == "VOTE":
+        #     self.vote_phase()
+
+        self.night_phase(phase_prompt)
+
+        self.day_phase()
 
         # 推进到下一阶段
-        self.game_state.advance_phase()
+        # self.game_state.advance_phase()
 
         return None
 
@@ -87,19 +107,21 @@ class GameManager:
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
         role_prompt = GameRulePrompt().get_response_format_prompt("werewolf")
-        self.kill_player = Werewolf(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
+        self.kill_player, M1, M2 = Werewolf(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
 
         # 2. 医生阶段
         print("\n==== 医生阶段 ====")
         if 'doctor' in self.alive_roles:
-            self.save_player = Doctor().do_action(self.alive_players, GameRulePrompt().get_response_format_prompt("doctor"), phase_prompt, self.game_state)
+            role_prompt = GameRulePrompt().get_response_format_prompt("doctor")
+            self.save_player = Doctor(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
         else:
             print('医生已经被杀害，跳过医生阶段...')
 
         # 预言家阶段
         print("\n==== 预言家阶段 ====")
         if 'seer' in self.alive_roles:
-            self.check_player = Seer().do_action(self.alive_players, GameRulePrompt().get_response_format_prompt("seer"), phase_prompt, self.game_state)
+            role_prompt = GameRulePrompt().get_response_format_prompt("seer")
+            self.check_player = Seer(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
 
@@ -160,7 +182,17 @@ class GameManager:
 
         # 玩家讨论
         for player in self.game_state.alive_players:
-            print(f"Player {player.player_id} 发言：...")
+            if player.role == 'werewolf':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            elif player.role == 'doctor':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            elif player.role == 'seer':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            elif player.role == 'villager':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            else:
+                raise ValueError(f"Invalid role: {player.role}. Please check the game setup.")
+
             # TODO: 此处应该调用玩家的发言方法
 
     def vote_phase(self):
@@ -174,7 +206,17 @@ class GameManager:
         # 收集所有玩家的投票
 
         for player in self.game_state.alive_players:
-            print(f"Player {player.player_id} 发言：...")
+            if player.role == 'werewolf':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            elif player.role == 'doctor':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            elif player.role == 'seer':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            elif player.role == 'villager':
+                print(f"Player {player.player_id}({player.role}) 发言：...")
+            else:
+                raise ValueError(f"Invalid role: {player.role}. Please check the game setup.")
+    
             # TODO: 此处每位玩家选择一名投票对象
         # 处理投票结果
 
@@ -204,6 +246,7 @@ class GameManager:
         else:
             # 游戏继续
             return False
+        
     def update_alive_players(self):
         """
         更新存活玩家列表

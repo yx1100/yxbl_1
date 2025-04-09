@@ -6,10 +6,12 @@ class WerewolfRolePrompt:
         self.language = language
 
     def _get_player_id_prompt(self):
-        if self.language == "en":
+        if self.language == "cn":
+            return f"""你是玩家 {self.player_id}，"""
+        elif self.language == "en":
             return f"""Your player id is {self.player_id}, """
         else:
-            return f"""你是玩家 {self.player_id}，"""
+            raise ValueError(f"Unsupported language: {self.language}")
 
     def get_doctor_rule_prompt(self):
         base_prompt = self._get_player_id_prompt()
@@ -68,18 +70,10 @@ When morning comes, you will be awakened and can participate in discussions."""
 
     def get_werewolf_rule_prompt(self):
         base_prompt = self._get_player_id_prompt()
-        werewolf_rule_prompt_cn = base_prompt + f"""你的角色是狼人。
-每到夜晚阶段，当到你（狼人）的回合时，在场还存活着的狼人将被唤醒，接着狼人们可以达成共识选择杀害任意一名还存活的玩家（包括狼人自己）。
-如果在场仅剩下一名狼人，这名狼人是你的话，那么你（狼人）将选择杀害任意一名还存活的玩家（包括你自己）。
-当狼人阵营选定受害者后，接着你的回合就结束了，你将会再次进入睡眠状态，等待天亮。
-等待天亮后，你将会被唤醒，接着你可以参与讨论。
-夜晚阶段被杀害的玩家将会被宣布。"""
-        werewolf_rule_prompt_en = base_prompt + f"""Your role is Werewolf.
-Every night, when it's your turn, all surviving werewolves will be awakened. Then the werewolves can reach a consensus to kill any living player (including werewolves themselves).
-If there is only one werewolf left in the game and it's you, then you (the Werewolf) will choose to kill any surviving player (including yourself).
-After the werewolf faction selects a victim, your turn ends and you will fall asleep again, waiting for dawn.
-When morning comes, you will be awakened and can participate in discussions.
-Players killed during the night phase will be announced."""
+        werewolf_rule_prompt_cn = base_prompt + f"""你的角色是狼人。每到夜晚阶段，当到你（狼人）的回合时，在场还存活着的狼人将被唤醒，接着狼人们可以达成共识选择杀害任意一名还存活的玩家（包括狼人自己）。如果在场仅剩下一名狼人，这名狼人是你的话，那么你（狼人）将选择杀害任意一名还存活的玩家（包括你自己）。当狼人阵营选定受害者后，接着你的回合就结束了，你将会再次进入睡眠状态，等待天亮。等待天亮后，你将会被唤醒，接着你可以参与讨论。夜晚阶段被杀害的玩家将会被宣布。"""
+        werewolf_rule_prompt_en = base_prompt + f"""Your role is Werewolf. Every night, when it's your turn, all surviving werewolves will be awakened. Then the werewolves can reach a consensus to kill any living player (including werewolves themselves).
+If there is only one werewolf left in the game and it's you, then you (the Werewolf) will choose to kill any surviving player (including yourself). After the werewolf faction selects a victim, your turn ends and you will fall asleep again, waiting for dawn.
+When morning comes, you will be awakened and can participate in discussions. Players killed during the night phase will be announced."""
         if self.language == "en":
             return werewolf_rule_prompt_en
         else:

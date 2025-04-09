@@ -155,3 +155,6 @@ class MessagesManager:
             self.messages = []
             self.next_message_number = 1
             return []
+
+class PlayerMessages:
+    pass

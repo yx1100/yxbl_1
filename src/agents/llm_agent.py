@@ -1,21 +1,44 @@
+from enum import Enum
 from src.agents.base_agent import BaseAgent
 from src.utils.llm_client import LLMClient
 from src.utils.rules_prompt import GameRulePrompt
 
 
+class MessageRole(Enum):
+    SYSTEM = "system"
+    USER = "user"
+    ASSISTANT = "assistant"
+
+
 class LLMAgent(BaseAgent):
-    def __init__(self, player_id, role, faction):
+    def __init__(self, player_id, role, human_or_ai="AI"):
         """初始化基于LLM的智能体
 
         Args:
             player_id: 玩家ID
             role: 角色对象(Werewolf, Villager等)
-            faction: 阵营
-            client: LLMClient实例
+            human_or_ai: Agent类型，默认为"AI"
         """
-        super().__init__(player_id, role, faction, human_or_ai="AI")
+        super().__init__(player_id, role, human_or_ai)
 
-        role_message = ''
-        # 根据角色初始化角色对象
-        role_message = GameRulePrompt().get_role_prompt(role=role, player_id=player_id)
-        self.client = LLMClient(system_message=role_message)
+        # 初始化LLM客户端
+        self.client = LLMClient()
+
+        # 初始化LLM messages数组
+        self.messages = []
+        role_system_message = GameRulePrompt().get_role_prompt(role=role, player_id=player_id) # 根据角色获取对应角色的Agent system message
+        self.add_message(role=MessageRole.SYSTEM, content=role_system_message) # 设置系统消息（System Message）。将系统消息添加到messages数组中
+
+    def add_message(self, role: MessageRole, content: str):
+        """
+        添加消息到消息列表
+
+        Args:
+            role: 消息角色
+            content: 消息内容
+        """
+        self.messages.append({"role": role.value, "content": content})
+
+# test
+# agent = LLMAgent(player_id="ID_1", role="werewolf")
+# print(agent)

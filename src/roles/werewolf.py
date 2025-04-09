@@ -17,7 +17,7 @@ class Werewolf(Role):
         self.werewolf_players = []
         if self.alive_players is not None:
             self.werewolf_players = [
-                player for player in self.alive_players if player.role == 'werewolf']
+                player for player in self.alive_players if player.role == self.role_name]
             print(
                 "狼人玩家：", [player.player_id for player in self.werewolf_players])
         else:
@@ -46,16 +46,18 @@ class Werewolf(Role):
             # 获取狼人1和狼人2的System Message
             self._add_message(player='werewolf_1',
                               player_id=werewolf_1_id,
+                              message_type='ROLE',
                               message=werewolf_1.client.messages.copy()[0])
             self._add_message(player='werewolf_2',
                               player_id=werewolf_2_id,
+                              message_type='ROLE',
                               message=werewolf_2.client.messages.copy()[0])
             # print(f"狼人1号System Message：{self.werewolf_1_messages}")
             # print(f"狼人2号System Message：{self.werewolf_2_messages}\n")
 
             # 添加当前阶段提示
             werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(
-                role='werewolf', day_count=self.day_count, player_id=werewolf_1_id)
+                role=self.role_name, day_count=self.day_count, player_id=werewolf_1_id)
             self._add_message(player='werewolf_1',
                               player_id=werewolf_1_id,
                               message={"role": "user", "content": f"{phase_prompt}\n{werewolf_1_night_prompt}\n你的狼人同伙是玩家{werewolf_2_id}。\n{response_prompt}"})
@@ -82,7 +84,7 @@ class Werewolf(Role):
             while not consensus and rounds < max_rounds:
                 # 添加狼人1的决定给狼人2
                 werewolf_2_night_prompt = GameRulePrompt().get_night_action_prompt(
-                    role='werewolf', day_count=self.day_count, player_id=werewolf_2_id)
+                    role=self.role_name, day_count=self.day_count, player_id=werewolf_2_id)
                 self._add_message(player='werewolf_2',
                                   player_id=werewolf_2_id,
                                   message={"role": "user", "content": f"""{phase_prompt}\n{werewolf_2_night_prompt}\n你的狼人同伙是玩家{werewolf_1_id}。\n你的狼人同伙玩家{werewolf_1_id}决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n{response_prompt}"""})
@@ -142,11 +144,14 @@ class Werewolf(Role):
             else:
                 kill_player = None
                 print("狼人无法达成共识，今晚没有人被杀害")
+
+            return kill_player, self.werewolf_1_messages, self.werewolf_2_messages
+        # 只有一个狼人
         elif len(self.werewolf_players) == 1:
             # 一个狼人直接决定
             pass
 
-        return kill_player
+            return kill_player
 
     def _add_message(self, player, player_id, message_type='PRIVATE', message=None):
         if player == 'werewolf_1':
