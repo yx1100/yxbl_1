@@ -16,9 +16,9 @@ class Message:
                  ):
         self.number = number
         self.player_id = player_id
-        self.role = role
-        self.phase = phase
-        self.message_type = message_type
+        self.role = role.value
+        self.phase = phase.value
+        self.message_type = message_type.value
         self.content = content
         self.day_count = day_count
 
@@ -58,10 +58,10 @@ class MessagesManager:
 
     def add_message(self,
                     player_id: str,
-                    role: GameRole,
+                    role: str,
                     day_count: int,
-                    phase: GamePhase,
-                    message_type: MessageType,
+                    phase: str,
+                    message_type: str,
                     content: str,
                     file_path: str = None) -> Message:
         """添加一条新消息并自动保存到文件"""

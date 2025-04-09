@@ -1,5 +1,5 @@
 from src.utils.config import LANGUAGE
-from src.roles.role import GameRole
+from src.utils.game_enum import GameRole
 
 class WerewolfRolePrompt:
     def __init__(self, player_id, language=LANGUAGE):

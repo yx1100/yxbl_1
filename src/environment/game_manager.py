@@ -1,11 +1,12 @@
 import sys
 from src.utils.config import MESSAGES_FILE_PATH
+from src.utils.game_enum import GameRole, GamePhase, MessageType
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
 from src.utils.messages_manager import MessagesManager
-from src.roles import Werewolf
-from src.roles import Doctor
-from src.roles import Seer
+# from src.roles import Werewolf
+# from src.roles import Doctor
+# from src.roles import Seer
 
 
 class GameManager:
@@ -13,26 +14,28 @@ class GameManager:
         self.messages_manager = MessagesManager(MESSAGES_FILE_PATH)  # 初始化消息管理器
         self.game_state = GameState()  # 初始化游戏状态
 
-        self.init_alive_players = self.game_state.get_alive_players() # 游戏初始化，存活玩家列表
-        self.init_alive_players_id = [player.player_id for player in self.init_alive_players] # 存活玩家ID列表
-        self.init_alive_roles = self.game_state.get_alive_players_role() # 存活角色列表
+        self.init_players = self.game_state.get_initial_players()  # 游戏初始化，存活玩家列表
+        self.init_players_id = self.game_state.get_players_id(
+            self.init_players)  # 存活玩家ID列表
+        self.init_players_roles = self.game_state.get_players_role(
+            self.init_players)  # 存活角色列表
 
-        prompt = f"""本场游戏初始玩家共有{len(self.init_alive_players)}人，分别是{self.init_alive_players_id}。"""
+        prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{self.init_players_id}。"""
         print(prompt)
         self.messages_manager.add_message(
             player_id="system",
-            role='Host',
+            role=GameRole.HOST,
             day_count=0,
-            phase="INIT",
-            message_type='PUBLIC',
+            phase=GamePhase.INIT,
+            message_type=MessageType.PUBLIC,
             content=prompt
         )
-        print(f"玩家角色分别是：{self.init_alive_roles}。\n======================\n")
+        print(f"玩家角色分别是：{self.init_players_roles}。\n======================\n")
 
-        self.alive_players = self.init_alive_players
-        self.alive_players_id = self.init_alive_players_id
-        self.alive_roles = self.init_alive_roles
-   
+        self.alive_players = self.init_players
+        self.alive_players_id = self.init_players_id
+        self.alive_roles = self.init_players_roles
+
         self.kill_player = None
         self.save_player = None
         self.check_player = None
@@ -41,14 +44,16 @@ class GameManager:
         """根据当前阶段运行相应的处理方法"""
         # 确保游戏状态已初始化
         if self.game_state is None:
-            raise RuntimeError("Game state not initialized. Please setup game first.")
+            raise RuntimeError(
+                "Game state not initialized. Please setup game first.")
 
         # 1. 判断游戏是否结束
         self._if_game_over()
 
         # 2. 获取当前存活玩家
         alive_players = self.game_state.get_alive_players()
-        alive_players_id = [player.player_id for player in alive_players]  # 获取存活玩家ID列表
+        alive_players_id = [
+            player.player_id for player in alive_players]  # 获取存活玩家ID列表
         # alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
         # 3. 获取当前天数
         current_day_count = self.game_state.get_day_count()  # 获取当前游戏天数
@@ -57,7 +62,8 @@ class GameManager:
         current_phase = self.game_state.get_current_phase()
         print(f"当前游戏阶段：{current_phase}")
         # 5. 获取当前阶段提示词
-        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count, phase=current_phase, alive_players=alive_players_id)
+        phase_prompt = GameRulePrompt().get_phase_prompt(day_count=current_day_count,
+                                                         phase=current_phase, alive_players=alive_players_id)
         print(f"当前阶段提示词：{phase_prompt}")
 
         self.messages_manager.add_message(
@@ -96,7 +102,8 @@ class GameManager:
         """
         # 确保游戏状态已初始化
         if self.game_state is None:
-            raise RuntimeError("Game state not initialized. Please setup game first.")
+            raise RuntimeError(
+                "Game state not initialized. Please setup game first.")
 
         print("\n==== 夜晚降临 ====")
         # 处理狼人袭击、医生救人、预言家查验等行为
@@ -107,13 +114,15 @@ class GameManager:
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
         role_prompt = GameRulePrompt().get_response_format_prompt("werewolf")
-        self.kill_player, M1, M2 = Werewolf(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
+        self.kill_player, M1, M2 = Werewolf(
+            self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
 
         # 2. 医生阶段
         print("\n==== 医生阶段 ====")
         if 'doctor' in self.alive_roles:
             role_prompt = GameRulePrompt().get_response_format_prompt("doctor")
-            self.save_player = Doctor(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
+            self.save_player = Doctor(self.game_state, self.messages_manager).do_action(
+                role_prompt, phase_prompt)
         else:
             print('医生已经被杀害，跳过医生阶段...')
 
@@ -121,7 +130,8 @@ class GameManager:
         print("\n==== 预言家阶段 ====")
         if 'seer' in self.alive_roles:
             role_prompt = GameRulePrompt().get_response_format_prompt("seer")
-            self.check_player = Seer(self.game_state, self.messages_manager).do_action(role_prompt, phase_prompt)
+            self.check_player = Seer(self.game_state, self.messages_manager).do_action(
+                role_prompt, phase_prompt)
         else:
             print('预言家已经被杀害，跳过预言家阶段...')
 
@@ -165,11 +175,12 @@ class GameManager:
         if self.game_state is None:
             raise RuntimeError(
                 "Game state not initialized. Please setup game first.")
-        
+
         self.game_state.update_day_count()
         print("\n==== 天亮了 ====")
 
-        last_night_info_prompt = GameRulePrompt().get_last_night_info_prompt(current_day=self.game_state.day_count, killed_player=self.kill_player, alive_players_id=self.alive_players_id)
+        last_night_info_prompt = GameRulePrompt().get_last_night_info_prompt(current_day=self.game_state.day_count,
+                                                                             killed_player=self.kill_player, alive_players_id=self.alive_players_id)
         print(last_night_info_prompt)
 
         # 宣布夜晚死亡情况
@@ -191,7 +202,8 @@ class GameManager:
             elif player.role == 'villager':
                 print(f"Player {player.player_id}({player.role}) 发言：...")
             else:
-                raise ValueError(f"Invalid role: {player.role}. Please check the game setup.")
+                raise ValueError(
+                    f"Invalid role: {player.role}. Please check the game setup.")
 
             # TODO: 此处应该调用玩家的发言方法
 
@@ -215,8 +227,9 @@ class GameManager:
             elif player.role == 'villager':
                 print(f"Player {player.player_id}({player.role}) 发言：...")
             else:
-                raise ValueError(f"Invalid role: {player.role}. Please check the game setup.")
-    
+                raise ValueError(
+                    f"Invalid role: {player.role}. Please check the game setup.")
+
             # TODO: 此处每位玩家选择一名投票对象
         # 处理投票结果
 
@@ -246,12 +259,17 @@ class GameManager:
         else:
             # 游戏继续
             return False
-        
+
     def update_alive_players(self):
         """
         更新存活玩家列表
         :return: 无有效返回值，仅打印信息
         """
         self.alive_players = self.game_state.get_alive_players()
-        self.alive_players_id = [player.player_id for player in self.alive_players]  # 获取存活玩家ID列表
+        self.alive_players_id = [
+            player.player_id for player in self.alive_players]  # 获取存活玩家ID列表
         self.alive_roles = self.game_state.get_alive_players_role()  # 获取存活玩家角色列表
+
+
+# test
+GameManager()

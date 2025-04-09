@@ -18,7 +18,6 @@ class GameState:
 
         players = self._set_players_agent()
         self.initial_players = players.copy()  # 初始玩家列表（使用复制避免引用问题）
-        self.alive_players = players.copy()  # 存活玩家列表（初始时与初始玩家相同）
 
         self.current_day_count = 1  # 游戏天数，从第1天开始
         # 当前游戏阶段，可选值为"NIGHT"(夜晚), "DAY"(白天), "VOTE"(投票)
@@ -62,6 +61,29 @@ class GameState:
             agents.append(agent)
 
         return agents
+
+    def get_initial_players(self):
+        """
+        获取初始玩家列表
+        :return: 初始玩家列表
+        """
+        return self.initial_players
+
+    def get_players_id(self, players):
+        """
+        获取玩家ID列表
+        :param players: 玩家列表
+        :return: 玩家ID列表
+        """
+        return [player.player_id for player in players]
+
+    def get_players_role(self, players):
+        """
+        获取玩家角色列表
+        :param players: 玩家列表
+        :return: 玩家角色列表
+        """
+        return [player.role for player in players]
 
     def get_alive_players(self):
         """

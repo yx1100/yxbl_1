@@ -6,6 +6,7 @@ class MessageRole(Enum):
     ASSISTANT = "assistant"
 
 class GamePhase(Enum):
+    INIT = "INIT"
     NIGHT = "NIGHT"
     DAY = "DAY"
     VOTE = "VOTE"
@@ -24,3 +25,5 @@ class GameFaction(Enum):
 class MessageType(Enum):
     PRIVATE = "PRIVATE"
     PUBLIC = "PUBLIC"
+
+    
