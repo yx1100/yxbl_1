@@ -3,6 +3,8 @@ import re
 import json
 from src.utils.messages_manager import MessagesManager
 
+
+
 class Role:
     def __init__(self, role_name, player_id=None, players_num=6, language=LANGUAGE):
         """

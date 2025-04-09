@@ -1,4 +1,5 @@
 from src.utils.config import LANGUAGE
+from src.roles.role import GameRole
 
 class WerewolfRolePrompt:
     def __init__(self, player_id, language=LANGUAGE):
@@ -217,13 +218,13 @@ Ensure the response can be parsed by Python json.loads"""
 
     def get_role_prompt(self, player_id, role):
         game_rule_prompt = self.get_game_rules_prompt()
-        if role == "werewolf":
+        if role == GameRole.WEREWOLF:
             role_prompt = WerewolfRolePrompt(player_id).get_werewolf_rule_prompt()
-        elif role == "doctor":
+        elif role == GameRole.DOCTOR:
             role_prompt = WerewolfRolePrompt(player_id).get_doctor_rule_prompt()
-        elif role == "seer":
+        elif role == GameRole.SEER:
             role_prompt = WerewolfRolePrompt(player_id).get_seer_rule_prompt()
-        elif role == "villager":
+        elif role == GameRole.VILLAGER:
             role_prompt = WerewolfRolePrompt(player_id).get_villager_rule_prompt()
         else:
             raise ValueError(f"Unknown role: {role}")
