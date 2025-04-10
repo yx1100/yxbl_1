@@ -98,17 +98,17 @@ class GameManager:
         # 处理狼人袭击、医生救人、预言家查验等行为
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====")
-        role_prompt = GameRulePrompt().get_response_format_prompt(GameRole.WEREWOLF)
         self.kill_player, M1, M2 = Werewolf(
             alive_players = alive_players,
             day_count = day_count,
             phase = GamePhase.NIGHT,
             messages_manager=self.messages_manager
-            ).do_action(role_prompt, phase_prompt)
+            ).do_action(phase_prompt)
 
         # 2. 医生阶段
         print("\n==== 医生阶段 ====")
-        if 'doctor' in self.alive_roles:
+        # TODO: GameRole.DOCTOR不匹配
+        if GameRole.DOCTOR in self.alive_roles:
             role_prompt = GameRulePrompt().get_response_format_prompt("doctor")
             self.save_player = Doctor(self.game_state, self.messages_manager).do_action(
                 role_prompt, phase_prompt)

@@ -115,7 +115,7 @@ class GameRulePrompt:
 
     def get_night_action_prompt(self, role, day_count, player_id):
         action = ""
-        if role == "werewolf":
+        if role == GameRole.WEREWOLF:
             action = "kill"
             prompt_en = f"""Now it is the night round on the {day_count}th day, you (and your teammate) should choose one player to {action}. As player {player_id} and a {role}, you should first reason about the current situation, then perform an action."""
             prompt_cn = f"""现在是第{day_count}天的夜晚回合，你（和你的队友）应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role}，你应该先分析当前局势，然后执行一个动作。"""
