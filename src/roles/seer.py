@@ -66,6 +66,22 @@ class Seer(Role):
 
         return check_player
 
+    def discuss(self, player_id):
+        prompt = f"现在是第{self.day_count}天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色{GameRole.SEER.value}和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是狼人？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是狼人（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。仅输出你想要表达的讨论内容，不要输出任何其他信息。"
+        seer = next(
+            (p for p in self.alive_players if p.player_id == player_id), None)
+        if not seer:
+            raise ValueError(
+                f"Player with ID {player_id} not found in alive players")
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=prompt)
+        doctor_response = seer.client.get_response(
+            messages=seer.messages)['content']
+        return doctor_response
+
     def _add_message(self, player_id, message_type, message_role, message):
         """
         添加消息到预言家的消息列表

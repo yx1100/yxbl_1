@@ -33,14 +33,10 @@ class Werewolf(Role):
             self.werewolf_1_id = self.werewolf_1.player_id  # 狼人1的ID
             self.werewolf_2_id = self.werewolf_2.player_id  # 狼人2的ID
 
-            self.werewolf_1_messages = self.werewolf_1.messages
-            self.werewolf_2_messages = self.werewolf_2.messages
         elif self.werewolf_nums == 1:
             self.werewolf = self.werewolf_players[0]  # 狼人1
 
-            self.werewolf_id = self.werewolf_1.player_id  # 狼人1的ID
-
-            self.werewolf_messages = self.werewolf_1.messages
+            self.werewolf_id = self.werewolf.player_id  # 狼人1的ID
 
     def do_action(self, phase_prompt):
         kill_player = None
@@ -64,7 +60,6 @@ class Werewolf(Role):
                 message_type=MessageType.PRIVATE,
                 message_role=MessageRole.USER,
                 message=f"{phase_prompt}\n{werewolf_1_night_prompt}")
-            # print(f"狼人1号Messages：{self.werewolf_1_messages}")
 
             # 狼人1先做决定
             werewolf_1_response = werewolf_1.client.get_response(
@@ -98,7 +93,6 @@ class Werewolf(Role):
                     message_type=MessageType.PRIVATE,
                     message_role=MessageRole.USER,
                     message=f"""{phase_prompt}\n{werewolf_2_night_prompt}\n你的狼人同伙玩家{werewolf_1_id}决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。""")
-                # print(f"狼人2号Messages：{self.werewolf_2_messages}")
 
                 # 狼人2回应
                 werewolf_2_response = werewolf_2.client.get_response(
@@ -128,7 +122,7 @@ class Werewolf(Role):
                         player_id=werewolf_1_id,
                         message_role=MessageRole.USER,
                         message=f"你原本决定杀害 {wolf1_target}，但你的同伴狼人{werewolf_2_id}不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。")
-                    print(f"狼人1号Messages：{self.werewolf_1_messages}")
+                    print(f"狼人1号Messages：{werewolf_1.messages}")
 
                     werewolf_1_response = werewolf_1.client.get_response(
                         messages=werewolf_1.messages)['content']
@@ -170,7 +164,7 @@ class Werewolf(Role):
             return kill_player
 
     def discuss(self, player_id):
-        prompt = f"现在是第{self.day_count}天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色{GameRole.WEREWOLF.value}和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是狼人？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是狼人（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。"
+        prompt = f"现在是第{self.day_count}天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色{GameRole.WEREWOLF.value}和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是狼人？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是狼人（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。仅输出你想要表达的讨论内容，不要输出任何其他信息。"
 
         # Find the player in alive_players that matches the given player_id
         werewolf = next(

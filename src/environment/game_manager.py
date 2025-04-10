@@ -1,4 +1,6 @@
+import dis
 import sys
+from roles.villager import Villager
 from src.utils.config import MESSAGES_FILE_PATH
 from src.utils.game_enum import GameRole, GamePhase, MessageType, MessageRole
 from src.environment.game_state import GameState
@@ -18,6 +20,10 @@ class GameManager:
         self.init_players_id = self.game_state.get_players_id()  # 存活玩家ID列表
         self.init_players_roles = self.game_state.get_players_role()  # 存活角色列表
 
+        self.day_count = 1
+
+        self.phase = GamePhase.NIGHT  # 游戏开始时为夜晚阶段
+
         prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{self.init_players_id}。"""
         print(f"提示词：{prompt}")
         self.messages_manager.add_message(
@@ -32,8 +38,8 @@ class GameManager:
             f"调试信息：玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
 
         self.alive_players = self.init_players.copy()
-        self.day = self.game_state.get_current_day()  # 当前游戏天数
-        self.phase = self.game_state.get_current_phase()  # 当前游戏阶段
+        # self.day = self.game_state.get_current_day()  # 当前游戏天数
+        # self.phase = self.game_state.get_current_phase()  # 当前游戏阶段
 
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
@@ -44,7 +50,7 @@ class GameManager:
         # 2. 获取当前存活玩家
         alive_players = self.alive_players
         # 3. 获取当前天数
-        current_day_count = self.day  # 获取当前游戏天数
+        current_day_count = self.day_count  # 获取当前游戏天数
         # 4. 获取当前阶段
         current_phase = self.phase  # 获取当前回合
         print(
@@ -66,6 +72,18 @@ class GameManager:
 
         kill_player = self.night_phase(current_day_count,
                                        alive_players)
+
+        # 1. 判断游戏是否结束
+        self._if_game_over()
+
+        # 2. 获取当前存活玩家
+        alive_players = self.alive_players
+        # 3. 获取当前天数
+        current_day_count = self.day_count  # 获取当前游戏天数
+        # 4. 获取当前阶段
+        current_phase = self.phase  # 获取当前回合
+        print(
+            f"调试信息：当前是游戏第{current_day_count}天的{current_phase.value}回合。")
 
         self.day_phase(current_day_count,
                        kill_player,
@@ -157,8 +175,8 @@ class GameManager:
         print("存活角色(系统信息)：", [
               player.role.value for player in self.alive_players])
 
-        self.game_state.update_day_count()
-        self.game_state.update_phase()
+        self.update_phase()
+        self.update_day()
 
         return kill_player
 
@@ -208,21 +226,60 @@ class GameManager:
         for player in alive_players:
             # 根据角色类型进行发言
             if player.role == GameRole.WEREWOLF:
-                print(f"Player {player.player_id}({player.role.value}) 发言：...")
-                r = Werewolf(
+                discussion = Werewolf(
                     alive_players=alive_players,
                     day_count=day_count,
                     phase=GamePhase.DAY,
                     messages_manager=self.messages_manager
                 ).discuss(player.player_id)
-                print(r)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
+
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                    )
 
             elif player.role == GameRole.DOCTOR:
-                print(f"Player {player.player_id}({player.role.value}) 发言：...")
+                discussion = Doctor(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).discuss(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
+
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                    )
             elif player.role == GameRole.SEER:
-                print(f"Player {player.player_id}({player.role.value}) 发言：...")
+                discussion = Seer(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).discuss(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
+
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                    )
             elif player.role == GameRole.VILLAGER:
-                print(f"Player {player.player_id}({player.role.value}) 发言：...")
+                discussion = Villager(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).discuss(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
             else:
                 raise ValueError(
                     f"Invalid role: {player.role.value}. Please check the game setup.")
@@ -258,3 +315,23 @@ class GameManager:
     def _if_game_over(self):
         """判断游戏是否结束"""
         pass
+
+    def update_day(self):
+        """更新游戏天数"""
+        self.day_count += 1
+
+    def update_phase(self):
+        """
+        更新游戏阶段
+        :param phase: 游戏阶段
+        :return: None
+        """
+        if self.phase == GamePhase.NIGHT:
+            self.phase = GamePhase.DAY
+        elif self.phase == GamePhase.DAY:
+            self.phase = GamePhase.VOTE
+        elif self.phase == GamePhase.VOTE:
+            self.phase = GamePhase.NIGHT
+        else:
+            raise ValueError(
+                "Invalid game phase. Please check the game setup.")
