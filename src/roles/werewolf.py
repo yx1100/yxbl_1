@@ -1,80 +1,80 @@
 from src.utils.config import LANGUAGE
 from src.roles.role import Role
 from src.utils.rules_prompt import GameRulePrompt
-from src.utils.game_enum import GameRole, MessageType
+from src.utils.game_enum import GameRole, MessageType, MessageRole
 
 
 class Werewolf(Role):
     def __init__(self, alive_players, day_count, phase, messages_manager):
         super().__init__(role_name=GameRole.WEREWOLF, language=LANGUAGE)
 
-        # self.game_state = game_state  # 游戏状态
         self.messages_manager = messages_manager  # 消息管理器
 
-        alive_players = alive_players  # 获取存活玩家
+        self.alive_players = alive_players  # 获取存活玩家
         self.day_count = day_count  # 获取当前游戏天数
         self.current_phase = phase  # 获取当前阶段
 
+        # 获取狼人玩家列表
         self.werewolf_players = []
-        if alive_players is not None:
+        if self.alive_players is not None:
             self.werewolf_players = [
-                player for player in alive_players if player.role == self.role_name]
+                player for player in self.alive_players if player.role == self.role_name]
             print(
                 "狼人玩家：", [player.player_id for player in self.werewolf_players])
         else:
             raise RuntimeError("No alive werewolf players found.")
 
-        self.werewolf_1 = self.werewolf_players[0]  # 狼人1
-        self.werewolf_2 = self.werewolf_players[1]  # 狼人2
+        self.werewolf_nums = len(self.werewolf_players)  # 获取狼人数量
+        if self.werewolf_nums == 2:
+            # TODO 目前先固定狼人数量为2，后期再考虑修改
+            self.werewolf_1 = self.werewolf_players[0]  # 狼人1
+            self.werewolf_2 = self.werewolf_players[1]  # 狼人2
 
-        self.werewolf_1_id = self.werewolf_1.player_id  # 狼人1的ID
-        self.werewolf_2_id = self.werewolf_2.player_id  # 狼人2的ID
+            self.werewolf_1_id = self.werewolf_1.player_id  # 狼人1的ID
+            self.werewolf_2_id = self.werewolf_2.player_id  # 狼人2的ID
 
-        self.werewolf_1_messages = self.werewolf_1.messages
-        self.werewolf_2_messages = self.werewolf_2.messages
+            self.werewolf_1_messages = self.werewolf_1.messages
+            self.werewolf_2_messages = self.werewolf_2.messages
+        elif self.werewolf_nums == 1:
+            self.werewolf = self.werewolf_players[0]  # 狼人1
+
+            self.werewolf_id = self.werewolf_1.player_id  # 狼人1的ID
+
+            self.werewolf_messages = self.werewolf_1.messages
 
     def do_action(self, phase_prompt):
         kill_player = None
 
         # 两个狼人协商决策
-        if len(self.werewolf_players) == 2:
-            werewolf_1 = self.werewolf_1
-            werewolf_2 = self.werewolf_2
+        if self.werewolf_nums == 2:
+            werewolf_1 = self.werewolf_1  # Agent类型
+            werewolf_2 = self.werewolf_2  # Agent类型
 
-            werewolf_1_id = self.werewolf_1_id
-            werewolf_2_id = self.werewolf_2_id
+            werewolf_1_id = self.werewolf_1_id  # str类型
+            werewolf_2_id = self.werewolf_2_id  # str类型
 
-            self._add_message(player='werewolf_1',
-                              player_id=werewolf_1_id,
-                              message_type=MessageType.PRIVATE,
-                              message=self.werewolf_1_messages[0])
-            self._add_message(player='werewolf_2',
-                              player_id=werewolf_2_id,
-                              message_type=MessageType.PRIVATE,
-                              message=self.werewolf_2_messages[0])
-            # print(f"狼人1号System Message：{self.werewolf_1_messages}")
-            # print(f"狼人2号System Message：{self.werewolf_2_messages}\n")
-
-            # 添加当前阶段提示
-            role_response_prompt = GameRulePrompt().get_response_format_prompt(self.role_name)
+            # 添加夜晚阶段提示
             werewolf_1_night_prompt = GameRulePrompt().get_night_action_prompt(
                 role=self.role_name,
                 day_count=self.day_count,
-                player_id=werewolf_1_id)
-            self._add_message(player='werewolf_1',
-                              player_id=werewolf_1_id,
-                              message_type=MessageType.PRIVATE,
-                              message={"role": "user", "content": f"{phase_prompt}\n{werewolf_1_night_prompt}\n你的狼人同伙是玩家{werewolf_2_id}。\n{role_response_prompt}"})
+                player_id=werewolf_1_id,
+                werewolf_partners=werewolf_2_id)
+            self._add_message(
+                player_id=werewolf_1_id,
+                message_type=MessageType.PRIVATE,
+                message_role=MessageRole.USER,
+                message=f"{phase_prompt}\n{werewolf_1_night_prompt}")
             # print(f"狼人1号Messages：{self.werewolf_1_messages}")
 
             # 狼人1先做决定
             werewolf_1_response = werewolf_1.client.get_response(
-                messages=self.werewolf_1_messages)['content']
+                messages=werewolf_1.messages)['content']
             print("狼人1号的回复: "+werewolf_1_response)
-            self._add_message(player='werewolf_1',
-                              player_id=werewolf_1_id,
-                              message_type=MessageType.PRIVATE,
-                              message={"role": "assistant", "content": werewolf_1_response})
+            self._add_message(
+                player_id=werewolf_1_id,
+                message_type=MessageType.PRIVATE,
+                message_role=MessageRole.ASSISTANT,
+                message=werewolf_1_response)
 
             # 解析狼人1的目标
             wolf1_target = self.extract_target(werewolf_1_response)
@@ -89,18 +89,26 @@ class Werewolf(Role):
             while not consensus and rounds < max_rounds:
                 # 添加狼人1的决定给狼人2
                 werewolf_2_night_prompt = GameRulePrompt().get_night_action_prompt(
-                    role=self.role_name, day_count=self.day_count, player_id=werewolf_2_id)
-                self._add_message(player='werewolf_2',
-                                  player_id=werewolf_2_id,
-                                  message={"role": "user", "content": f"""{phase_prompt}\n{werewolf_2_night_prompt}\n你的狼人同伙是玩家{werewolf_1_id}。\n你的狼人同伙玩家{werewolf_1_id}决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。\n{role_response_prompt}"""})
+                    role=self.role_name,
+                    day_count=self.day_count,
+                    player_id=werewolf_2_id,
+                    werewolf_partners=werewolf_1_id)
+                self._add_message(
+                    player_id=werewolf_2_id,
+                    message_type=MessageType.PRIVATE,
+                    message_role=MessageRole.USER,
+                    message=f"""{phase_prompt}\n{werewolf_2_night_prompt}\n你的狼人同伙玩家{werewolf_1_id}决定杀害 {wolf1_target}。理由是：{werewolf_1_response}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。""")
                 # print(f"狼人2号Messages：{self.werewolf_2_messages}")
+
                 # 狼人2回应
                 werewolf_2_response = werewolf_2.client.get_response(
-                    messages=self.werewolf_2_messages)['content']
+                    messages=werewolf_2.messages)['content']
                 print(f"狼人2的回复: {werewolf_2_response}")
-                self._add_message(player='werewolf_2',
-                                  player_id=werewolf_2_id,
-                                  message={"role": "assistant", "content": werewolf_2_response})
+                self._add_message(
+                    player_id=werewolf_2_id,
+                    message_type=MessageType.PRIVATE,
+                    message_role=MessageRole.ASSISTANT,
+                    message=werewolf_2_response)
 
                 # 解析狼人1的目标
                 wolf2_target = self.extract_target(werewolf_2_response)
@@ -116,17 +124,20 @@ class Werewolf(Role):
                 else:
                     print(f"狼人2不同意，想要杀害: {wolf2_target}")
                     # 狼人1回应狼人2的目标
-                    self._add_message(player='werewolf_1',
-                                      player_id=werewolf_1_id,
-                                      message={"role": "user", "content": f"你原本决定杀害 {wolf1_target}，但你的同伴狼人{werewolf_2_id}不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。\n{response_prompt}"})
+                    self._add_message(
+                        player_id=werewolf_1_id,
+                        message_role=MessageRole.USER,
+                        message=f"你原本决定杀害 {wolf1_target}，但你的同伴狼人{werewolf_2_id}不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。")
                     print(f"狼人1号Messages：{self.werewolf_1_messages}")
 
                     werewolf_1_response = werewolf_1.client.get_response(
-                        input_messages=self.werewolf_1_messages)['content']
+                        messages=werewolf_1.messages)['content']
                     print(f"狼人1的回复: {werewolf_1_response}")
-                    self._add_message(player='werewolf_1',
-                                      player_id=werewolf_1_id,
-                                      message={"role": "assistant", "content": werewolf_1_response})
+                    self._add_message(
+                        player_id=werewolf_1_id,
+                        message_type=MessageType.PRIVATE,
+                        message_role=MessageRole.ASSISTANT,
+                        message=werewolf_1_response)
 
                     wolf1_target = self.extract_target(werewolf_1_response)
                     # 检查狼人1是否同意狼人2的决定
@@ -150,19 +161,37 @@ class Werewolf(Role):
                 kill_player = None
                 print("狼人无法达成共识，今晚没有人被杀害")
 
-            return kill_player, self.werewolf_1_messages, self.werewolf_2_messages
+            return kill_player
         # 只有一个狼人
-        elif len(self.werewolf_players) == 1:
+        elif self.werewolf_nums == 1:
             # 一个狼人直接决定
             pass
 
             return kill_player
 
-    def _add_message(self, player, player_id, message_type=MessageType.PRIVATE, message=None):
-        if player == 'werewolf_1':
-            self.werewolf_1_messages.append(message)
-        elif player == 'werewolf_2':
-            self.werewolf_2_messages.append(message)
+    def discuss(self, player_id):
+        prompt = f"现在是第{self.day_count}天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色{GameRole.WEREWOLF.value}和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是狼人？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是狼人（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。"
+
+        # Find the player in alive_players that matches the given player_id
+        werewolf = next(
+            (p for p in self.alive_players if p.player_id == player_id), None)
+        if not werewolf:
+            raise ValueError(
+                f"Player with ID {player_id} not found in alive players")
+
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=prompt)
+        werewolf_response = werewolf.client.get_response(
+            messages=werewolf.messages)['content']
+        return werewolf_response
+
+    def _add_message(self, player_id, message_type, message_role, message):
+        werewolf = [
+            p for p in self.alive_players if p.player_id == player_id][0]
+        werewolf.add_message(role=message_role, content=message)
 
         self.messages_manager.add_message(
             player_id=player_id,
@@ -170,5 +199,5 @@ class Werewolf(Role):
             day_count=self.day_count,
             phase=self.current_phase,
             message_type=message_type,
-            content=message['content']
+            content=message
         )

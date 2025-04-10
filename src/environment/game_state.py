@@ -84,7 +84,7 @@ class GameState:
         :param players: 玩家列表
         :return: 玩家角色列表
         """
-        return [player.role.value for player in self.alive_players]
+        return [player.role for player in self.alive_players]
 
     def get_alive_players(self):
         """
@@ -106,6 +106,29 @@ class GameState:
         :return: 当前游戏阶段
         """
         return self.phase
+
+    def update_day_count(self):
+        """
+        更新游戏天数
+        :return: None
+        """
+        self.day_count += 1
+
+    def update_phase(self):
+        """
+        更新游戏阶段
+        :param phase: 游戏阶段
+        :return: None
+        """
+        if self.phase == GamePhase.NIGHT:
+            self.phase = GamePhase.DAY
+        elif self.phase == GamePhase.DAY:
+            self.phase = GamePhase.VOTE
+        elif self.phase == GamePhase.VOTE:
+            self.phase = GamePhase.NIGHT
+        else:
+            raise ValueError("Invalid game phase. Please check the game setup.")
+
 # # test
 # agents = GameState()._set_players_agent()
 # print(agents)

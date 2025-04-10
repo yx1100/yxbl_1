@@ -74,7 +74,10 @@ class GameRulePrompt:
         self.language = language
 
     def get_last_night_info_prompt(self, current_day, killed_player, alive_players_id):
-        last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜被杀死的玩家是：{killed_player}。目前存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
+        if killed_player is None:
+            last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜没有人被杀死。存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
+        else:
+            last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜被杀死的玩家是：{killed_player}。目前存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
         return last_night_info_prompt_cn
 
     def get_game_rules_prompt(self):
@@ -113,20 +116,23 @@ class GameRulePrompt:
         else:
             return game_rules_prompt_cn
 
-    def get_night_action_prompt(self, role, day_count, player_id):
-        action = ""
+    def get_night_action_prompt(self, role, day_count, player_id, werewolf_partners=None):
         if role == GameRole.WEREWOLF:
             action = "kill"
-            prompt_en = f"""Now it is the night round on the {day_count}th day, you (and your teammate) should choose one player to {action}. As player {player_id} and a {role}, you should first reason about the current situation, then perform an action."""
-            prompt_cn = f"""现在是第{day_count}天的夜晚回合，你（和你的队友）应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role}，你应该先分析当前局势，然后执行一个动作。"""
-        elif role == "doctor":
+            if werewolf_partners is not None:
+                prompt_en = f""" """
+                prompt_cn = f"""现在是第{day_count}天的夜晚回合，你（和你的队友）应该选择一名玩家进行{action}。你的狼人同伙是玩家{werewolf_partners}。作为玩家{player_id}和一名{role.value}，你应该先分析当前局势，然后执行一个动作。\n{self.get_response_format_prompt(GameRole.WEREWOLF)}"""
+            elif werewolf_partners is None:
+                prompt_en = f""" """
+                prompt_cn = f"""现在是第{day_count}天的夜晚回合，你应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role.value}，你应该先分析当前局势，然后执行一个动作。\n{self.get_response_format_prompt(GameRole.WEREWOLF)}"""
+        elif role == GameRole.DOCTOR:
             action = "save"
-            prompt_en = f"""Now it is the night round on the {day_count}th day, you should choose one player to {action}. As player {player_id} and a {role}, you should first reason about the current situation, then perform an action."""
-            prompt_cn = f"""现在是第{day_count}天的夜晚回合，你应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role}，你应该先分析当前局势，然后执行一个动作。"""
-        elif role == "seer":
+            prompt_en = f""" """
+            prompt_cn = f"""现在是第{day_count}天的夜晚回合，你应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role.value}，你应该先分析当前局势，然后执行一个动作。\n{self.get_response_format_prompt(GameRole.DOCTOR)}"""
+        elif role == GameRole.SEER:
             action = "see"
-            prompt_en = f"""Now it is the night round on the {day_count}th day, you should choose one player to {action}. As player {player_id} and a {role}, you should first reason about the current situation, then perform an action."""
-            prompt_cn = f"""现在是第{day_count}天的夜晚回合，你应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role}，你应该先分析当前局势，然后执行一个动作。"""
+            prompt_en = f""" """
+            prompt_cn = f"""现在是第{day_count}天的夜晚回合，你应该选择一名玩家进行{action}。作为玩家{player_id}和一名{role.value}，你应该先分析当前局势，然后执行一个动作。\n{self.get_response_format_prompt(GameRole.SEER)}"""
 
         if self.language == "en":
             return prompt_en
@@ -173,6 +179,7 @@ class GameRulePrompt:
     "target": "ID_X"
 }}
 确保回应可以被Python的json.loads解析"""
+        
         response_format_prompt_en = f"""You should only respond in JSON format as described below.
 Response Format:
 {{
