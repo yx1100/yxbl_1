@@ -1,6 +1,7 @@
 from src.utils.config import LANGUAGE
 from src.utils.game_enum import GameRole, GamePhase
 
+
 class WerewolfRolePrompt:
     def __init__(self, player_id, language=LANGUAGE):
         self.player_id = player_id
@@ -46,7 +47,8 @@ When morning comes, you will be awakened and can participate in discussions."""
 
     def get_villager_rule_prompt(self):
         base_prompt = self._get_player_id_prompt()
-        villager_rule_prompt_cn = base_prompt + f"""你的角色是村民。你在整个夜晚阶段都将保持睡眠状态，且不会知道任何夜晚阶段发生的事情。等待天亮后，你将会被唤醒，接着你可以参与讨论。"""
+        villager_rule_prompt_cn = base_prompt + \
+            f"""你的角色是村民。你在整个夜晚阶段都将保持睡眠状态，且不会知道任何夜晚阶段发生的事情。等待天亮后，你将会被唤醒，接着你可以参与讨论。"""
         villager_rule_prompt_en = base_prompt + f"""Your role is Villager.
 You will remain asleep throughout the night phase and won't know about anything that happens during that time.
 When morning comes, you will be awakened and can participate in discussions."""
@@ -73,37 +75,8 @@ class GameRulePrompt:
         self.roles_list = roles_list
         self.language = language
 
-    def get_last_night_info_prompt(self, current_day, killed_player, alive_players_id):
-        if killed_player is None:
-            last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜没有人被杀死。存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
-        else:
-            last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜被杀死的玩家是：{killed_player}。目前存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
-        return last_night_info_prompt_cn
-
     def get_game_rules_prompt(self):
-        game_rules_prompt_en = f"""You are playing a game called Werewolf with other players. This game is based on text conversations. Here are the game rules:
-- There are {self.players_num} roles in the game: {self.roles_list}. You are playing with {self.players_num - 1} other players.
-- The System is also the host, organizing the game. You need to respond to its instructions correctly. Do not talk to the System.
-- The game alternates between two phases: "Night" phase and "Day" phase.
--- During the Night phase: Your conversations with the host are private. You do not need to worry about other players knowing what you say or do. There is no suspicion from others during the night.
--- During the Day phase: You discuss with all players, including your enemies. At the end of the discussion, players vote to eliminate one player they suspect of being a werewolf. The player with the most votes will be eliminated. The host will announce who was eliminated, or if no one was eliminated.
-
-- Roles:
--- Werewolf: You know the identities of your fellow werewolves and can discuss with them whom to eliminate. Werewolves should vote to kill one player based on analysis. The player with the most votes among the werewolves' choices will be eliminated. If there is no consensus, no one will be eliminated.
--- Doctor: You can choose any living player (including yourself) to heal. If your healing target is also the werewolves' attack target for the night, that player will survive. If your healing target is not the werewolves' attack target, your healing will have no effect. If your healing target is a werewolf who committed suicide, you will revive them.
--- Seer: You can verify whether a player is a werewolf each night. This is a critical ability for the game.
--- Villager: You cannot take any actions during the night.
-
-- Objectives:
--- If you belong to the "Werewolf" faction, your goal is to cooperate with other werewolves to eliminate all players who are not werewolves. Note that all werewolves share the same objective.
--- If you belong to the "Villager" faction, your goal is to work with other villagers to eliminate all werewolves. Villagers, Seers, and Doctors all belong to the Villager faction and share the same objective.
-
-- Tips:
--- To achieve your objective, during the Night phase, analyze the situation and use your abilities wisely. During the Day phase, reason carefully about the roles of other players. Unless you are trying to deceive others, avoid revealing your role casually. When making decisions or voting, only provide the player's ID and do not generate conversations for other players. Base your reasoning on observed facts, and do not perceive information beyond the text (e.g., auditory information).
--- You may pretend to be another role, but you cannot pretend to be another player or the host.
--- Always end your response with "<EOS>."
-    """
-
+        game_rules_prompt_en = f""" """
         game_rules_prompt_cn = f"""你正在玩一个叫做狼人杀的游戏，与其他玩家一起。这个游戏基于文字对话。以下是游戏规则：
 - 游戏中有{self.players_num}个角色：{self.roles_list}。你与其他{self.players_num - 1}名玩家一起游戏。- 系统同时也是主持人，他组织了这个游戏，你需要正确回应他的指示。不要与系统交谈。
 - 游戏中有两个交替的回合，"夜晚"回合和"白天"回合。-- 当是夜晚时：你与主持人的对话内容是保密的。你无需担心其他玩家知道你说什么和做什么。在夜晚，不用担心来自他人的怀疑。-- 在白天回合：你与所有玩家讨论，包括你的敌人。在讨论结束时，玩家们投票淘汰一名他们怀疑是狼人的玩家。得票最多的玩家将被淘汰。主持人会告知谁被杀死，否则就是没有人被杀死。-- 如果一名玩家被杀死，他将不能再做任何事情并退出游戏。
@@ -115,6 +88,26 @@ class GameRulePrompt:
             return game_rules_prompt_en
         else:
             return game_rules_prompt_cn
+
+    def get_role_prompt(self, player_id, role):
+        game_rule_prompt = self.get_game_rules_prompt()
+        if role == GameRole.WEREWOLF:
+            role_prompt = WerewolfRolePrompt(
+                player_id).get_werewolf_rule_prompt()
+        elif role == GameRole.DOCTOR:
+            role_prompt = WerewolfRolePrompt(
+                player_id).get_doctor_rule_prompt()
+        elif role == GameRole.SEER:
+            role_prompt = WerewolfRolePrompt(player_id).get_seer_rule_prompt()
+        elif role == GameRole.VILLAGER:
+            role_prompt = WerewolfRolePrompt(
+                player_id).get_villager_rule_prompt()
+        else:
+            raise ValueError(f"Unknown role: {role}")
+
+        prompt = f"""全局游戏规则提示：{game_rule_prompt}\n角色游戏规则提示：{role_prompt}\n"""
+
+        return prompt
 
     def get_night_action_prompt(self, role, day_count, player_id, werewolf_partners=None):
         if role == GameRole.WEREWOLF:
@@ -138,6 +131,13 @@ class GameRulePrompt:
             return prompt_en
         else:
             return prompt_cn
+
+    def get_last_night_info_prompt(self, current_day, killed_player, alive_players_id):
+        if killed_player is None:
+            last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜没有人被杀死。存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
+        else:
+            last_night_info_prompt_cn = f"""\n当前是第{current_day}天白天回合，昨夜被杀死的玩家是：{killed_player}。目前存活玩家有{len(alive_players_id)}名，分别是：{alive_players_id}"""
+        return last_night_info_prompt_cn
 
     def get_phase_prompt(self, day_count, phase, alive_players):
         if self.language == "cn":
@@ -179,7 +179,7 @@ class GameRulePrompt:
     "target": "ID_X"
 }}
 确保回应可以被Python的json.loads解析"""
-        
+
         response_format_prompt_en = f"""You should only respond in JSON format as described below.
 Response Format:
 {{
@@ -194,19 +194,6 @@ Ensure the response can be parsed by Python json.loads"""
         else:
             return response_format_prompt_cn
 
-    def get_role_prompt(self, player_id, role):
-        game_rule_prompt = self.get_game_rules_prompt()
-        if role == GameRole.WEREWOLF:
-            role_prompt = WerewolfRolePrompt(player_id).get_werewolf_rule_prompt()
-        elif role == GameRole.DOCTOR:
-            role_prompt = WerewolfRolePrompt(player_id).get_doctor_rule_prompt()
-        elif role == GameRole.SEER:
-            role_prompt = WerewolfRolePrompt(player_id).get_seer_rule_prompt()
-        elif role == GameRole.VILLAGER:
-            role_prompt = WerewolfRolePrompt(player_id).get_villager_rule_prompt()
-        else:
-            raise ValueError(f"Unknown role: {role}")
-
-        prompt = f"""全局游戏规则提示：{game_rule_prompt}\n角色游戏规则提示：{role_prompt}\n"""
-
+    def get_day_discuss_prompt(self, day, role):
+        prompt = f"现在是第{day}天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色{role.value}和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是村民？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是村民（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。不要透露自己的角色（Role），仅输出你想要表达的讨论内容，不要输出任何其他信息。"
         return prompt
