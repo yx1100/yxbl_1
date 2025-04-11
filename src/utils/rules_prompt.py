@@ -178,7 +178,7 @@ class GameRulePrompt:
     "action": "{action}",
     "target": "ID_X"
 }}
-确保回应可以被Python的json.loads解析"""
+确保回应可以被Python的json.loads解析。"""
 
         response_format_prompt_en = f"""You should only respond in JSON format as described below.
 Response Format:

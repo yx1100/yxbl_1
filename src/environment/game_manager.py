@@ -1,14 +1,12 @@
-import dis
-import sys
-from roles.villager import Villager
 from src.utils.config import MESSAGES_FILE_PATH
 from src.utils.game_enum import GameRole, GamePhase, MessageType, MessageRole
 from src.environment.game_state import GameState
 from src.utils.rules_prompt import GameRulePrompt
 from src.utils.messages_manager import MessagesManager
-from src.roles import Werewolf
-from src.roles import Doctor
-from src.roles import Seer
+from src.roles.werewolf import Werewolf
+from src.roles.doctor import Doctor
+from src.roles.seer import Seer
+from src.roles.villager import Villager
 
 
 class GameManager:
@@ -20,9 +18,9 @@ class GameManager:
         self.init_players_id = self.game_state.get_players_id()  # 存活玩家ID列表
         self.init_players_roles = self.game_state.get_players_role()  # 存活角色列表
 
-        self.day_count = 1
+        self.day_count = self.game_state.day_count
 
-        self.phase = GamePhase.NIGHT  # 游戏开始时为夜晚阶段
+        self.phase = self.game_state.phase  # 游戏开始时为夜晚阶段
 
         prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{self.init_players_id}。"""
         print(f"提示词：{prompt}")
@@ -38,15 +36,13 @@ class GameManager:
             f"调试信息：玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
 
         self.alive_players = self.init_players.copy()
-        # self.day = self.game_state.get_current_day()  # 当前游戏天数
-        # self.phase = self.game_state.get_current_phase()  # 当前游戏阶段
+        self.kill_player = None
 
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
 
         # 1. 判断游戏是否结束
         self._if_game_over()
-
         # 2. 获取当前存活玩家
         alive_players = self.alive_players
         # 3. 获取当前天数
@@ -56,38 +52,16 @@ class GameManager:
         print(
             f"调试信息：当前是游戏第{current_day_count}天的{current_phase.value}回合。")
 
-        # if current_phase == GamePhase.NIGHT:
-        #     kill_player = self.night_phase(current_day_count,
-        #                      alive_players,
-        #                      alive_players_id,
-        #                      alive_roles)
-        # elif current_phase == GamePhase.DAY:
-        #     self.day_phase(current_day_count,
-        #                    kill_player,
-        #                    alive_players,
-        #                    alive_players_id,
-        #                    alive_roles)
-        # elif current_phase == GamePhase.VOTE:
-        #     pass
-
-        kill_player = self.night_phase(current_day_count,
-                                       alive_players)
-
-        # 1. 判断游戏是否结束
-        self._if_game_over()
-
-        # 2. 获取当前存活玩家
-        alive_players = self.alive_players
-        # 3. 获取当前天数
-        current_day_count = self.day_count  # 获取当前游戏天数
-        # 4. 获取当前阶段
-        current_phase = self.phase  # 获取当前回合
-        print(
-            f"调试信息：当前是游戏第{current_day_count}天的{current_phase.value}回合。")
-
-        self.day_phase(current_day_count,
-                       kill_player,
-                       alive_players)
+        if current_phase == GamePhase.NIGHT:
+            self.kill_player = self.night_phase(current_day_count,
+                                                alive_players)
+        elif current_phase == GamePhase.DAY:
+            self.day_phase(current_day_count,
+                           self.kill_player,
+                           alive_players)
+        elif current_phase == GamePhase.VOTE:
+            self.vote_phase(current_day_count, alive_players)
+            # Return after processing the current phase
 
     def night_phase(self, day_count, alive_players):
         """处理夜晚阶段"""
@@ -280,37 +254,89 @@ class GameManager:
                 ).discuss(player.player_id)
                 print(
                     f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                    )
             else:
                 raise ValueError(
                     f"Invalid role: {player.role.value}. Please check the game setup.")
 
-            # TODO: 此处应该调用玩家的发言方法
+        self.update_phase()
 
-    def vote_phase(self):
+    def vote_phase(self, day_count, alive_players):  # TODO
         """处理投票阶段"""
-        # 确保游戏状态已初始化
-        if self.game_state is None:
-            raise RuntimeError(
-                "Game state not initialized. Please setup game first.")
-
         print("\n==== 投票阶段 ====")
         # 收集所有玩家的投票
 
-        for player in self.game_state.alive_players:
-            if player.role == 'werewolf':
-                print(f"Player {player.player_id}({player.role}) 发言：...")
-            elif player.role == 'doctor':
-                print(f"Player {player.player_id}({player.role}) 发言：...")
-            elif player.role == 'seer':
-                print(f"Player {player.player_id}({player.role}) 发言：...")
-            elif player.role == 'villager':
-                print(f"Player {player.player_id}({player.role}) 发言：...")
+        vote_result = []
+        for player in alive_players:
+            if player.role == GameRole.WEREWOLF:
+                vote = Werewolf(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).vote(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 投票：{vote}")
+                vote_result.append(vote)
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                    )
+            elif player.role == GameRole.DOCTOR:
+                vote = Doctor(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).vote(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 投票：{vote}")
+                vote_result.append(vote)
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                    )
+            elif player.role == GameRole.SEER:
+                vote = Seer(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).vote(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 投票：{vote}")
+                vote_result.append(vote)
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                    )
+            elif player.role == GameRole.VILLAGER:
+                vote = Villager(
+                    alive_players=alive_players,
+                    day_count=day_count,
+                    phase=GamePhase.DAY,
+                    messages_manager=self.messages_manager
+                ).vote(player.player_id)
+                print(
+                    f"Player {player.player_id}({player.role.value}) 投票：{vote}")
+                vote_result.append(vote)
+                for p in alive_players:
+                    p.add_message(
+                        role=MessageRole.USER,
+                        content=f"第{day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                    )
             else:
                 raise ValueError(
                     f"Invalid role: {player.role}. Please check the game setup.")
-
-            # TODO: 此处每位玩家选择一名投票对象
         # 处理投票结果
+        print("投票结果：", vote_result)
 
     def _if_game_over(self):
         """判断游戏是否结束"""

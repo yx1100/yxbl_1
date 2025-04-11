@@ -10,7 +10,12 @@ def main():
         print("Deleted existing game_messages.json file.")
         
     game_manager = GameManager()
-    game_manager.run_phase()  # 运行游戏阶段
+    while True:
+        game_manager.run_phase()  # 运行游戏阶段
+        game_manager.run_phase()  # 运行游戏阶段
+        game_manager.run_phase()  # 运行游戏阶段
+        break
+        
 
 
 if __name__ == "__main__":

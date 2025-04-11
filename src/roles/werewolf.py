@@ -19,25 +19,16 @@ class Werewolf(Role):
         if self.alive_players is not None:
             self.werewolf_players = [
                 player for player in self.alive_players if player.role == self.role_name]
-            print(
-                "狼人玩家：", [player.player_id for player in self.werewolf_players])
+            # print(
+            #     "狼人玩家：", [player.player_id for player in self.werewolf_players])
         else:
             raise RuntimeError("No alive werewolf players found.")
 
         self.werewolf_nums = len(self.werewolf_players)  # 获取狼人数量
-        if self.werewolf_nums == 2:
-            # TODO 目前先固定狼人数量为2，后期再考虑修改
-            self.werewolf_1 = self.werewolf_players[0]  # 狼人1
-            self.werewolf_2 = self.werewolf_players[1]  # 狼人2
-
-            self.werewolf_1_id = self.werewolf_1.player_id  # 狼人1的ID
-            self.werewolf_2_id = self.werewolf_2.player_id  # 狼人2的ID
-
-        elif self.werewolf_nums == 1:
-            self.werewolf = self.werewolf_players[0]  # 狼人1
-
-            self.werewolf_id = self.werewolf.player_id  # 狼人1的ID
-
+        for i, werewolf in enumerate(self.werewolf_players):
+            setattr(self, f"werewolf_{i+1}", werewolf)
+            setattr(self, f"werewolf_{i+1}_id", werewolf.player_id)
+    
     def do_action(self, phase_prompt):
         kill_player = None
 
@@ -181,9 +172,34 @@ class Werewolf(Role):
             messages=werewolf.messages)['content']
         return werewolf_response
 
+    def vote(self, player_id):
+        prompt = f"""根据你的角色{self.role_name}和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。
+你应该只以下面描述的JSON格式回应。回应格式：
+{{
+    "reasoning": "对当前局势的分析",
+    "action": "vote",
+    "target": "ID_X"
+}}
+确保回应可以被Python的json.loads解析。"""
+        werewolf = next(
+            (p for p in self.alive_players if p.player_id == player_id), None)
+        if not werewolf:
+            raise ValueError(
+                f"Player with ID {player_id} not found in alive players")
+
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=prompt)
+        werewolf_response = werewolf.client.get_response(
+            messages=werewolf.messages)['content']
+        vote_target = self.extract_target(werewolf_response)
+        return vote_target
+
     def _add_message(self, player_id, message_type, message_role, message):
-        werewolf = [
-            p for p in self.alive_players if p.player_id == player_id][0]
+        werewolf = next(
+            (p for p in self.alive_players if p.player_id == player_id), None)
         werewolf.add_message(role=message_role, content=message)
 
         self.messages_manager.add_message(

@@ -78,9 +78,34 @@ class Seer(Role):
             message_type=MessageType.PRIVATE,
             message_role=MessageRole.USER,
             message=prompt)
-        doctor_response = seer.client.get_response(
+        seer_response = seer.client.get_response(
             messages=seer.messages)['content']
-        return doctor_response
+        return seer_response
+
+    def vote(self, player_id):
+        prompt = f"""根据你的角色{self.role_name}和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。
+你应该只以下面描述的JSON格式回应。回应格式：
+{{
+    "reasoning": "对当前局势的分析",
+    "action": "vote",
+    "target": "ID_X"
+}}
+确保回应可以被Python的json.loads解析。"""
+        seer = next(
+            (p for p in self.alive_players if p.player_id == player_id), None)
+        if not seer:
+            raise ValueError(
+                f"Player with ID {player_id} not found in alive players")
+
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=prompt)
+        seer_response = seer.client.get_response(
+            messages=seer.messages)['content']
+        vote_target = self.extract_target(seer_response)
+        return vote_target
 
     def _add_message(self, player_id, message_type, message_role, message):
         """
