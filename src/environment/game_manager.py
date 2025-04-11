@@ -17,7 +17,7 @@ class GameManager:
     def __init__(self):
         self.messages_manager = MessagesManager(MESSAGES_FILE_PATH)  # 初始化消息管理器
 
-        self.init_players = self._set_players_agent  # 游戏初始化，存活玩家列表
+        self.init_players = self._set_players_agent()  # 游戏初始化，存活玩家列表
         self.init_players_id = [
             player.player_id for player in self.init_players]  # 存活玩家ID列表
         self.init_players_roles = [
@@ -25,6 +25,8 @@ class GameManager:
 
         prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{self.init_players_id}。"""
         print(f"提示词：{prompt}")
+        print(
+            f"调试信息：玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
         self.messages_manager.add_message(
             player_id="system",
             role=GameRole.HOST,
@@ -33,25 +35,20 @@ class GameManager:
             message_type=MessageType.PUBLIC,
             content=prompt
         )
-        print(
-            f"调试信息：玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
-
+        
         self.day_count = 1
         self.alive_players = self.init_players.copy()
 
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
 
-        # . 判断游戏是否结束
+        # 判断游戏是否结束
         self._if_game_over()
         print(f"==== 游戏开始！====")
 
         kill_player = self.night_phase()
-        self.day_phase(self.day_count,
-                       kill_player,
-                       self.alive_players)
-        self.vote_phase(self.day_count,
-                        self.alive_players)
+        self.day_phase(kill_player)
+        self.vote_phase()
 
     def night_phase(self):
         """处理夜晚阶段"""
@@ -139,7 +136,7 @@ class GameManager:
         print("存活角色(系统信息)：", [
               player.role.value for player in self.alive_players])
 
-        self.update_phase()
+        # self.update_phase()
         self.update_day()
 
         return kill_player
@@ -253,7 +250,7 @@ class GameManager:
                 raise ValueError(
                     f"Invalid role: {player.role.value}. Please check the game setup.")
 
-        self.update_phase()
+        # self.update_phase()
 
     def vote_phase(self):
         """处理投票阶段"""
@@ -351,11 +348,27 @@ class GameManager:
                     if player.player_id == voted_player_id:
                         print(f"玩家 {player.player_id} 是平票玩家之一。")
 
-        self.update_phase()
+        # self.update_phase()
 
     def _if_game_over(self):
         """判断游戏是否结束"""
-        pass
+        werewolf_count = 0
+        villager_count = 0
+        
+        for player in self.alive_players:
+            if player.faction == GameFaction.WEREWOLVES:
+                werewolf_count += 1
+            elif player.faction == GameFaction.VILLAGERS:
+                villager_count += 1
+        
+        # 如果狼人数量为0，游戏结束
+        if werewolf_count == 0:
+            return True
+        # 如果狼人数量等于村民阵营的数量，游戏结束
+        elif werewolf_count == villager_count:
+            return True
+        # 其他情况，游戏继续
+        return False
 
     def update_day(self):
         """更新游戏天数"""
@@ -384,9 +397,6 @@ class GameManager:
         # 创建玩家代理
         agents = []
         for player_id, role in zip(player_id_list, player_role_list):
-            # 根据角色确定阵营
-            faction = GameFaction.WEREWOLVES if role == GameRole.WEREWOLF else GameFaction.VILLAGERS
-
             # 根据ID创建人类或AI代理
             if player_id == human_player_id:
                 # agent = HumanAgent(player_id=player_id, role=role, human_or_ai='Human')
