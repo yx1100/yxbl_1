@@ -24,9 +24,9 @@ class GameManager:
             player.role for player in self.init_players]  # 存活角色列表
 
         prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{self.init_players_id}。"""
-        print(f"提示词：{prompt}")
+        print(f"主持人：{prompt}")
         print(
-            f"调试信息：玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
+            f"系统信息：本场游戏玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
         self.messages_manager.add_message(
             player_id="system",
             role=GameRole.HOST,
@@ -34,21 +34,23 @@ class GameManager:
             phase=GamePhase.INIT,
             message_type=MessageType.PUBLIC,
             content=prompt
-        )
-        
-        self.day_count = 1
-        self.alive_players = self.init_players.copy()
+        )  # 这里的信息只加入了game messages，没有加入到玩家的上下文消息中
+
+        self.day_count = 1  # 游戏天数
+        self.alive_players = self.init_players.copy()  # 存活玩家列表
 
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
 
-        # 判断游戏是否结束
-        self._if_game_over()
         print(f"==== 游戏开始！====")
 
-        kill_player = self.night_phase()
-        self.day_phase(kill_player)
-        self.vote_phase()
+        # 判断游戏是否结束
+        while not self._if_game_over():  # 如果游戏没有结束
+            print(f"\n==== 第{self.day_count}天 ====")
+            kill_player = self.night_phase()
+            self.day_phase(kill_player)
+        print("游戏结束！")
+        return  # End the run_phase method after the game is over
 
     def night_phase(self):
         """处理夜晚阶段"""
@@ -67,7 +69,7 @@ class GameManager:
         phase_prompt = GameRulePrompt().get_phase_prompt(day_count=self.day_count,
                                                          phase=GamePhase.NIGHT,
                                                          alive_players=alive_players_id)
-        print(f"提示词：{phase_prompt}")
+        print(f"主 持 人：{phase_prompt}")
 
         self.messages_manager.add_message(
             player_id="system",
@@ -76,14 +78,15 @@ class GameManager:
             phase=GamePhase.NIGHT,
             message_type=MessageType.PUBLIC,
             content=phase_prompt
-        )
+        )  # 这里的提示词只加入了game messages，后面在角色类方法中加入到玩家的上下文消息中
 
-        print(f"提示词：存活玩家：{alive_players_id}")
-        print(f"调试信息：存活角色：{[role.value for role in alive_roles]}。")
+        print(f"主 持 人：当前的存活玩家有{alive_players_id}")
+        print(f"系统信息：角色分别是{[role.value for role in alive_roles]}。")
 
         # 处理狼人袭击、医生救人、预言家查验等行为
         # 1. 狼人阶段
-        print("\n==== 狼人阶段 ====")
+        print("\n==== 狼人阶段 ====\n狼人请睁眼...")
+        kill_player = None
         kill_player = Werewolf(
             alive_players=self.alive_players,
             day_count=self.day_count,
@@ -92,7 +95,8 @@ class GameManager:
         ).do_action(phase_prompt)
 
         # 2. 医生阶段
-        print("\n==== 医生阶段 ====")
+        print("\n==== 医生阶段 ====\n医生请睁眼...")
+        save_player = None
         if GameRole.DOCTOR in alive_roles:
             save_player = Doctor(
                 alive_players=self.alive_players,
@@ -104,7 +108,8 @@ class GameManager:
             print('医生已经被杀害，跳过医生阶段...')
 
         # 预言家阶段
-        print("\n==== 预言家阶段 ====")
+        print("\n==== 预言家阶段 ====\n预言家请睁眼...")
+        check_player = None
         if GameRole.SEER in alive_roles:
             check_player = Seer(
                 alive_players=self.alive_players,
@@ -128,9 +133,15 @@ class GameManager:
                         break
 
         print("\n==== 夜晚总结 ====")
-        print("被杀玩家(公开信息)：", kill_player)
-        print("被救玩家(系统信息)：", save_player)
-        print("被查玩家(系统信息)：", check_player)
+        if kill_player is not None:
+            print("被杀玩家(公开信息)：", kill_player)
+        else:
+            print("昨晚没有人被杀。")
+        if save_player is not None:
+            print("被救玩家(系统信息)：", save_player)
+        if check_player is not None:
+            print("被查玩家(系统信息)：", check_player)
+
         print("存活玩家(公开信息)：", [
               player.player_id for player in self.alive_players])
         print("存活角色(系统信息)：", [
@@ -154,7 +165,7 @@ class GameManager:
         alive_players_id = [player.player_id for player in self.alive_players]
         alive_roles = [player.role.value for player in self.alive_players]
 
-        print("\n==== 天亮了 ====")
+        print("\n==== 天亮了 ====\n所有玩家请睁眼...")
 
         last_night_info_prompt = GameRulePrompt().get_last_night_info_prompt(current_day=self.day_count,
                                                                              killed_player=kill_player,
@@ -177,7 +188,7 @@ class GameManager:
 
         # 宣布夜晚死亡情况
         if kill_player is not None:
-            print(f"主持人(公开信息)：昨晚玩家 {kill_player} 被杀害.")
+            print(f"主持人：昨晚玩家 {kill_player} 被杀害.")
         else:
             print("主持人(公开信息)：昨晚没有人被杀害.")
         print("存活玩家(公开信息)：", alive_players_id)
@@ -249,8 +260,9 @@ class GameManager:
             else:
                 raise ValueError(
                     f"Invalid role: {player.role.value}. Please check the game setup.")
+        print("\n==== 玩家讨论结束 ====")
 
-        # self.update_phase()
+        self.vote_phase()
 
     def vote_phase(self):
         """处理投票阶段"""
@@ -354,18 +366,22 @@ class GameManager:
         """判断游戏是否结束"""
         werewolf_count = 0
         villager_count = 0
-        
+
         for player in self.alive_players:
             if player.faction == GameFaction.WEREWOLVES:
                 werewolf_count += 1
             elif player.faction == GameFaction.VILLAGERS:
                 villager_count += 1
-        
+
+        print(f"系统信息：存活狼人数量：{werewolf_count}，存活村民数量：{villager_count}。")
+
         # 如果狼人数量为0，游戏结束
         if werewolf_count == 0:
+            print("村民胜利！")
             return True
         # 如果狼人数量等于村民阵营的数量，游戏结束
         elif werewolf_count == villager_count:
+            print("狼人胜利！")
             return True
         # 其他情况，游戏继续
         return False
