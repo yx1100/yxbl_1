@@ -1,5 +1,7 @@
 import random
 from collections import Counter
+
+from prompt_toolkit import prompt
 from src.utils.config import PLAYER_NUMS
 from src.utils.config import MESSAGES_FILE_PATH
 from src.agents.llm_agent import LLMAgent
@@ -47,8 +49,7 @@ class GameManager:
         # 判断游戏是否结束
         while not self._if_game_over():  # 如果游戏没有结束
             print(f"\n==== 第{self.day_count}天 ====")
-            kill_player = self.night_phase()
-            self.day_phase(kill_player)
+            self.night_phase()
         print("游戏结束！")
         return  # End the run_phase method after the game is over
 
@@ -85,7 +86,8 @@ class GameManager:
 
         # 处理狼人袭击、医生救人、预言家查验等行为
         # 1. 狼人阶段
-        print("\n==== 狼人阶段 ====\n狼人请睁眼...")
+        print("\n==== 狼人阶段 ====\n")
+        print("主 持 人：狼人请睁眼...\n\n")
         kill_player = None
         kill_player = Werewolf(
             alive_players=self.alive_players,
@@ -149,8 +151,7 @@ class GameManager:
 
         # self.update_phase()
         self.update_day()
-
-        return kill_player
+        self.day_phase(kill_player)
 
     def day_phase(self, kill_player):
         """处理白天阶段"""
@@ -172,11 +173,9 @@ class GameManager:
                                                                              alive_players_id=alive_players_id)
         print(last_night_info_prompt)
 
-        for player in self.alive_players:
-            player.add_message(
-                role=MessageRole.USER,
-                content=last_night_info_prompt
-            )
+        self.add_message_for_all_agents(
+            role=MessageRole.USER,
+            content=last_night_info_prompt)
         self.messages_manager.add_message(
             player_id="system",
             role=GameRole.HOST,
@@ -207,11 +206,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
 
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                )
 
             elif player.role == GameRole.DOCTOR:
                 discussion = Doctor(
@@ -223,11 +221,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
 
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                )
             elif player.role == GameRole.SEER:
                 discussion = Seer(
                     alive_players=self.alive_players,
@@ -238,11 +235,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
 
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                )
             elif player.role == GameRole.VILLAGER:
                 discussion = Villager(
                     alive_players=self.alive_players,
@@ -252,11 +248,11 @@ class GameManager:
                 ).discuss(player.player_id)
                 print(
                     f"Player {player.player_id}({player.role.value}) 发言：{discussion}")
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
-                    )
+
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天白天（DAY）阶段，玩家{player.player_id}的发言内容：{discussion}"
+                )
             else:
                 raise ValueError(
                     f"Invalid role: {player.role.value}. Please check the game setup.")
@@ -281,11 +277,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 投票：{vote}")
                 vote_result.append(vote)
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                )
             elif player.role == GameRole.DOCTOR:
                 vote = Doctor(
                     alive_players=self.alive_players,
@@ -296,11 +291,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 投票：{vote}")
                 vote_result.append(vote)
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                )
             elif player.role == GameRole.SEER:
                 vote = Seer(
                     alive_players=self.alive_players,
@@ -311,11 +305,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 投票：{vote}")
                 vote_result.append(vote)
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                )
             elif player.role == GameRole.VILLAGER:
                 vote = Villager(
                     alive_players=self.alive_players,
@@ -326,11 +319,10 @@ class GameManager:
                 print(
                     f"Player {player.player_id}({player.role.value}) 投票：{vote}")
                 vote_result.append(vote)
-                for p in self.alive_players:
-                    p.add_message(
-                        role=MessageRole.USER,
-                        content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
-                    )
+                self.add_message_for_all_agents(
+                    role=MessageRole.USER,
+                    content=f"第{self.day_count}天投票（VOTE）阶段，玩家{player.player_id}选择投出玩家是：{vote}。"
+                )
             else:
                 raise ValueError(
                     f"Invalid role: {player.role}. Please check the game setup.")
@@ -339,28 +331,52 @@ class GameManager:
 
         # 统计每个投票选项的出现次数
         vote_counts = Counter(vote_result)
+        if not vote_counts:  # 处理空投票结果的情况
+            print("出错！没有有效的投票结果！")
+            # 根据游戏规则决定下一步，例如直接进入夜晚或宣布无人出局
+            return  # 或者根据游戏逻辑进行其他处理
         # 找到最高票数
-        max_votes = max(vote_counts.values(), default=0)
+        max_votes = max(vote_counts.values())
         # 找出所有获得最高票数的玩家
-        most_voted = [player for player,
-                      count in vote_counts.items() if count == max_votes]
-
-        print(f"最高票数是 {max_votes}，被投票最多的玩家是：{most_voted}")
+        most_voted_players = [player_id for player_id,
+                              count in vote_counts.items() if count == max_votes]
+        print(f"主持人：被投票数最多的玩家是 {most_voted_players}。")
 
         # 处理投票结果
-        if len(most_voted) == 1:
-            # 只有一个最高票玩家，直接输出
-            voted_out_player = most_voted[0]
-            print(f"玩家 {voted_out_player} 被投票出局。")
+        voted_out_player = None
+        if len(most_voted_players) == 1:
+            # 只有一个最高票玩家，直接淘汰
+            voted_out_player = most_voted_players[0]
+            print(f"主持人：玩家 {voted_out_player} 被投票出局。")
+            # 从存活玩家列表中移除被淘汰的玩家
+            # Create a copy to safely iterate while removing
+            for player in self.alive_players[:]:
+                if player.player_id == voted_out_player:
+                    self.alive_players.remove(player)
+                    break
+            # 向所有玩家广播投票结果
+            self.add_message_for_all_agents(
+                role=MessageRole.USER,
+                content=f"第{self.day_count}天投票（VOTE）结果：玩家 {voted_out_player} 被投票出局。"
+            )
         else:
-            # 有多个最高票玩家（平票），遍历检查player_id
-            print(f"出现平票情况，平票玩家有：")
-            for voted_player_id in most_voted:
-                for player in self.alive_players:
-                    if player.player_id == voted_player_id:
-                        print(f"玩家 {player.player_id} 是平票玩家之一。")
+            # 有多个最高票玩家（平票）
+            tie_players_str = ", ".join(most_voted_players)
+            print(f"主持人：出现平票情况，玩家 {tie_players_str} 得票数相同。")
+            # 根据规则，可能需要重新投票或无人出局
+            prompt = f"第{self.day_count}投票（VOTE）阶段出现平票情况，玩家 {tie_players_str} 得票数相同。"
+            # 这里可以添加处理平票的逻辑，例如再次投票
+            for id in most_voted_players:  # 从平票的id list中遍历提取出每个id元素
+                for player in self.alive_players:  # 遍历存活玩家列表
+                    if player.player_id == id:  # 如果存活玩家的ID和平票的ID相同
+                        defense_content = player.client.get_response(
+                            messages=prompt)['content']
+                        print(f"Player {player.player_id}({player.role.value}) 辩护：{defense_content}")
+                        break
 
-        # self.update_phase()
+        print("投票阶段结束。")
+        # 投票阶段结束后，通常会检查游戏是否结束，然后进入夜晚
+        # 这个检查通常在 run_phase 的循环开始时进行，所以这里不需要显式调用 _if_game_over
 
     def _if_game_over(self):
         """判断游戏是否结束"""
@@ -389,6 +405,13 @@ class GameManager:
     def update_day(self):
         """更新游戏天数"""
         self.day_count += 1
+
+    def add_message_for_all_agents(self, role, content):
+        for player in self.alive_players:
+            player.add_message(
+                role=role,
+                content=content
+            )
 
     def _set_players_agent(self, players_count=PLAYER_NUMS):
         # 设置游戏环境和玩家

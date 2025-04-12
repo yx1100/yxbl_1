@@ -150,7 +150,33 @@ class Werewolf(Role):
         # 只有一个狼人
         elif self.werewolf_nums == 1:
             # 一个狼人直接决定
-            pass
+            werewolf = self.werewolf_1  # Agent类型
+            werewolf_id = self.werewolf_1_id  # str类型
+
+            # 添加夜晚阶段提示
+            werewolf_night_prompt = GameRulePrompt().get_night_action_prompt(
+                role=self.role_name,
+                day_count=self.day_count,
+                player_id=werewolf_id)
+            self._add_message(
+                player_id=werewolf_id,
+                message_type=MessageType.PRIVATE,
+                message_role=MessageRole.USER,
+                message=f"{phase_prompt}\n{werewolf_night_prompt}")
+
+            # 唯一狼人做决定
+            werewolf_response = werewolf.client.get_response(
+                messages=werewolf.messages)['content']
+            print("唯一狼人的回复: "+werewolf_response)
+            self._add_message(
+                player_id=werewolf_id,
+                message_type=MessageType.PRIVATE,
+                message_role=MessageRole.ASSISTANT,
+                message=werewolf_response)
+
+            # 解析狼人的目标
+            kill_player = self.extract_target(werewolf_response)
+            print(f"狼人想要杀害: {kill_player}")
 
             return kill_player
 
