@@ -25,10 +25,10 @@ class GameManager:
         self.init_players_roles = [
             player.role for player in self.init_players]  # 存活角色列表
 
-        prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{self.init_players_id}。"""
+        prompt = f"""本场游戏初始玩家共有{len(self.init_players)}人，分别是{', '.join(self.init_players_id)}。"""
         print(f"主持人：{prompt}")
         print(
-            f"系统信息：本场游戏玩家角色分别是：{[role.value for role in self.init_players_roles]}。\n======================\n")
+            f"系统信息：本场游戏玩家角色分别是：{', '.join([role.value for role in self.init_players_roles])}。\n======================\n")
         self.messages_manager.add_message(
             player_id="system",
             role=GameRole.HOST,
@@ -44,11 +44,11 @@ class GameManager:
     def run_phase(self):
         """根据当前阶段运行相应的处理方法"""
 
-        print(f"==== 游戏开始！====")
+        print(f"===== 游戏开始！=====")
 
         # 判断游戏是否结束
         while not self._if_game_over():  # 如果游戏没有结束
-            print(f"\n==== 第{self.day_count}天 ====")
+            print(f"\n==== 第 {self.day_count} 天 ====")
             self.night_phase()
         print("游戏结束！")
         return  # End the run_phase method after the game is over
@@ -81,13 +81,13 @@ class GameManager:
             content=phase_prompt
         )  # 这里的提示词只加入了game messages，后面在角色类方法中加入到玩家的上下文消息中
 
-        print(f"主 持 人：当前的存活玩家有{alive_players_id}")
-        print(f"系统信息：角色分别是{[role.value for role in alive_roles]}。")
+        print(f"主 持 人：当前的存活玩家有{', '.join(alive_players_id)}。")
+        print(f"系统信息：玩家角色分别是{', '.join([role.value for role in alive_roles])}。")
 
         # 处理狼人袭击、医生救人、预言家查验等行为
         # 1. 狼人阶段
         print("\n==== 狼人阶段 ====\n")
-        print("主 持 人：狼人请睁眼...\n\n")
+        print("主 持 人：狼人请睁眼...")
         kill_player = None
         kill_player = Werewolf(
             alive_players=self.alive_players,
@@ -144,10 +144,8 @@ class GameManager:
         if check_player is not None:
             print("被查玩家(系统信息)：", check_player)
 
-        print("存活玩家(公开信息)：", [
-              player.player_id for player in self.alive_players])
-        print("存活角色(系统信息)：", [
-              player.role.value for player in self.alive_players])
+        print(f"存活玩家(公开信息)：{', '.join([player.player_id for player in self.alive_players])}")
+        print(f"存活角色(系统信息)：{', '.join([player.role.value for player in self.alive_players])}")
 
         # self.update_phase()
         self.update_day()
@@ -190,8 +188,8 @@ class GameManager:
             print(f"主持人：昨晚玩家 {kill_player} 被杀害.")
         else:
             print("主持人(公开信息)：昨晚没有人被杀害.")
-        print("存活玩家(公开信息)：", alive_players_id)
-        print("存活角色(系统信息)：", alive_roles)
+        print(f"存活玩家(公开信息)：{', '.join(alive_players_id)}")
+        print(f"存活角色(系统信息)：{', '.join(alive_roles)}")
 
         # 玩家讨论
         for player in self.alive_players:

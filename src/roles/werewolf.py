@@ -181,7 +181,7 @@ class Werewolf(Role):
             return kill_player
 
     def discuss(self, player_id):
-        prompt = GameRulePrompt().get_day_discuss_prompt(self.day_count, self.role_name)
+        prompt = GameRulePrompt().get_day_discuss_prompt(self.day_count, player_id, self.role_name)
         # Find the player in alive_players that matches the given player_id
         werewolf = next(
             (p for p in self.alive_players if p.player_id == player_id), None)
@@ -199,14 +199,7 @@ class Werewolf(Role):
         return werewolf_response
 
     def vote(self, player_id):
-        prompt = f"""根据你的角色{self.role_name}和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。
-你应该只以下面描述的JSON格式回应。回应格式：
-{{
-    "reasoning": "对当前局势的分析",
-    "action": "vote",
-    "target": "ID_X"
-}}
-确保回应可以被Python的json.loads解析。"""
+        prompt = GameRulePrompt().get_vote_prompt(self.day_count, player_id, self.role_name)
         werewolf = next(
             (p for p in self.alive_players if p.player_id == player_id), None)
         if not werewolf:
@@ -220,6 +213,7 @@ class Werewolf(Role):
             message=prompt)
         werewolf_response = werewolf.client.get_response(
             messages=werewolf.messages)['content']
+        print("狼人投票的回复: "+werewolf_response)
         vote_target = self.extract_target(werewolf_response)
         return vote_target
 

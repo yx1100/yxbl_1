@@ -19,84 +19,84 @@
   },
   {
     "number": 3,
-    "player_id": "ID_4",
+    "player_id": "ID_1",
     "role": "Werewolf",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第1天的夜晚回合，你（和你的队友）应该选择一名玩家进行kill。你的狼人同伙是玩家ID_6。作为玩家ID_4和一名Werewolf，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"kill\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第1天的夜晚回合，你（和你的队友）应该选择一名玩家进行kill。你的狼人同伙是玩家ID_5。作为玩家ID_1和一名Werewolf，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"kill\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
   },
   {
     "number": 4,
-    "player_id": "ID_4",
+    "player_id": "ID_1",
     "role": "Werewolf",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "{\n    \"reasoning\": \"现在是游戏的第一天，还没有足够的信息来判断其他玩家的角色。然而，我们可以选择一个随机的目标进行攻击，以削弱村民阵营的力量。我将与我的狼人队友ID_6合作，选择一个目标进行击杀。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_2\"\n}"
+    "content": "{\n    \"reasoning\": \"现在是游戏的第一天，还没有足够的信息来确定谁是村民阵营。但是，我们可以尝试先除去一个可能的威胁，比如预言家或者医生。在这里，我选择击杀ID_2，假设他可能是预言家，这样可以保护我们狼人阵营的利益。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_2\"\n}"
   },
   {
     "number": 5,
-    "player_id": "ID_6",
+    "player_id": "ID_5",
     "role": "Werewolf",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第1天的夜晚回合，你（和你的队友）应该选择一名玩家进行kill。你的狼人同伙是玩家ID_4。作为玩家ID_6和一名Werewolf，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"kill\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。\n你的狼人同伙玩家ID_4决定杀害 ID_2。理由是：{\n    \"reasoning\": \"现在是游戏的第一天，还没有足够的信息来判断其他玩家的角色。然而，我们可以选择一个随机的目标进行攻击，以削弱村民阵营的力量。我将与我的狼人队友ID_6合作，选择一个目标进行击杀。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_2\"\n}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。"
+    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第1天的夜晚回合，你（和你的队友）应该选择一名玩家进行kill。你的狼人同伙是玩家ID_1。作为玩家ID_5和一名Werewolf，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"kill\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。\n你的狼人同伙玩家ID_1决定杀害 ID_2。理由是：{\n    \"reasoning\": \"现在是游戏的第一天，还没有足够的信息来确定谁是村民阵营。但是，我们可以尝试先除去一个可能的威胁，比如预言家或者医生。在这里，我选择击杀ID_2，假设他可能是预言家，这样可以保护我们狼人阵营的利益。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_2\"\n}。\n你同意这个决定吗？如果同意，请说明你的理由；如果不同意，请分析并提出你认为应该杀害的目标。"
   },
   {
     "number": 6,
-    "player_id": "ID_6",
+    "player_id": "ID_5",
     "role": "Werewolf",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "{\n    \"reasoning\": \"我同意玩家ID_4的决定。在游戏的第一天，我们还没有足够的信息来判断其他玩家的角色。因此，选择一个随机的目标进行攻击是合理的策略。通过削弱村民阵营的力量，我们可以为后续的游戏争取优势。此外，由于我们无法确定其他角色的身份，选择随机目标可以避免过早暴露我们的身份。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_2\"\n}"
+    "content": "{\n    \"reasoning\": \"我同意玩家ID_1的决定。在游戏的第一天，我们确实缺乏足够的信息来明确判断每个玩家的身份。然而，优先除去潜在的关键角色（如预言家或医生）是一个合理的策略。选择ID_2作为目标可能有助于我们减少村民阵营中的关键威胁，从而更好地保护狼人阵营的利益。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_2\"\n}"
   },
   {
     "number": 7,
-    "player_id": "ID_1",
+    "player_id": "ID_4",
     "role": "Doctor",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第1天的夜晚回合，你应该选择一名玩家进行save。作为玩家ID_1和一名Doctor，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"save\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第1天的夜晚回合，你应该选择一名玩家进行save。作为玩家ID_4和一名Doctor，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"save\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
   },
   {
     "number": 8,
-    "player_id": "ID_1",
+    "player_id": "ID_4",
     "role": "Doctor",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "{\n    \"reasoning\": \"在游戏的第1天夜晚，由于没有足够的信息来判断谁可能是狼人的目标，我将选择随机救一名玩家。为了开始，我选择救自己，以确保自身的安全并能在后续回合中继续使用我的能力。\",\n    \"action\": \"save\",\n    \"target\": \"ID_1\"\n}"
+    "content": "{\n    \"reasoning\": \"在游戏的第一天，还没有足够的信息来判断谁可能是狼人。因此，作为一个谨慎的医生，我将选择拯救自己，以确保自己的生存并继续为村民阵营做出贡献。\",\n    \"action\": \"save\",\n    \"target\": \"ID_4\"\n}"
   },
   {
     "number": 9,
-    "player_id": "ID_2",
+    "player_id": "ID_6",
     "role": "Seer",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n\n现在是第1天的夜晚回合，你应该选择一名玩家进行see。作为玩家ID_2和一名Seer，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"see\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。\n"
+    "content": "现在是游戏的第1天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有6名，分别是：['ID_1', 'ID_2', 'ID_3', 'ID_4', 'ID_5', 'ID_6']\n\n现在是第1天的夜晚回合，你应该选择一名玩家进行see。作为玩家ID_6和一名Seer，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"see\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。\n"
   },
   {
     "number": 10,
-    "player_id": "ID_2",
+    "player_id": "ID_6",
     "role": "Seer",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "{\n    \"reasoning\": \"作为预言家，在第1天的夜晚，我需要选择一名玩家进行查验以获取信息。为了最大化信息的价值，我应该选择一名可能具有关键角色的玩家。这里我选择查验ID_3，以便了解他的阵营，为接下来的讨论提供依据。\",\n    \"action\": \"see\",\n    \"target\": \"ID_3\"\n}"
+    "content": "{\n    \"reasoning\": \"作为预言家，在游戏的第一晚，我需要选择一名玩家进行查验以获取信息。为了最大化信息的价值，我应该选择一个可能具有关键角色的玩家。这里我选择ID_1作为目标，以便了解他的阵营，从而为接下来的游戏提供线索。\",\n    \"action\": \"see\",\n    \"target\": \"ID_1\"\n}"
   },
   {
     "number": 11,
-    "player_id": "ID_2",
+    "player_id": "ID_6",
     "role": "Seer",
     "day_count": 1,
     "phase": "NIGHT",
     "message_type": "PRIVATE",
-    "content": "你在第1天的NIGHT阶段查验的玩家ID_3的角色是Villager。"
+    "content": "你在第1天的NIGHT阶段查验的玩家ID_1的角色是Werewolf。"
   },
   {
     "number": 12,
@@ -110,11 +110,11 @@
   {
     "number": 13,
     "player_id": "ID_1",
-    "role": "Doctor",
+    "role": "Werewolf",
     "day_count": 2,
     "phase": "DAY",
     "message_type": "PRIVATE",
-    "content": "现在是第2天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色Doctor和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是村民？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是村民（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。不要透露自己的角色（Role），仅输出你想要表达的讨论内容，不要输出任何其他信息。"
+    "content": "现在是第2天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_1且身份是GameRole.WEREWOLF，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
   },
   {
     "number": 14,
@@ -123,43 +123,43 @@
     "day_count": 2,
     "phase": "DAY",
     "message_type": "PRIVATE",
-    "content": "现在是第2天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色Villager和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是村民？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是村民（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。不要透露自己的角色（Role），仅输出你想要表达的讨论内容，不要输出任何其他信息。"
+    "content": "现在是第2天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_3且身份是GameRole.VILLAGER，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
   },
   {
     "number": 15,
     "player_id": "ID_4",
-    "role": "Werewolf",
-    "day_count": 2,
-    "phase": "DAY",
-    "message_type": "PRIVATE",
-    "content": "现在是第2天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色Werewolf和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是村民？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是村民（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。不要透露自己的角色（Role），仅输出你想要表达的讨论内容，不要输出任何其他信息。"
-  },
-  {
-    "number": 16,
-    "player_id": "ID_5",
-    "role": "Villager",
-    "day_count": 2,
-    "phase": "DAY",
-    "message_type": "PRIVATE",
-    "content": "现在是第2天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色Villager和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是村民？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是村民（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。不要透露自己的角色（Role），仅输出你想要表达的讨论内容，不要输出任何其他信息。"
-  },
-  {
-    "number": 17,
-    "player_id": "ID_6",
-    "role": "Werewolf",
-    "day_count": 2,
-    "phase": "DAY",
-    "message_type": "PRIVATE",
-    "content": "现在是第2天的白天（DAY）讨论阶段。请结合游戏规则，根据的你玩家角色Werewolf和已有游戏信息进行分析讨论。讨论的内容可以包括但不限于：‘你认为谁是村民？’、‘谁在说真话，谁又在为了生存而撒谎？’你可以说真话也可以撒谎。请注意，讨论阶段是村民（WEREWOLVES）阵营和村民（VILLAGERS）阵营之间的博弈阶段，你可以选择隐瞒自己的身份或试图揭露其他玩家的身份。请根据游戏规则进行讨论。不要透露自己的角色（Role），仅输出你想要表达的讨论内容，不要输出任何其他信息。"
-  },
-  {
-    "number": 18,
-    "player_id": "ID_1",
     "role": "Doctor",
     "day_count": 2,
     "phase": "DAY",
     "message_type": "PRIVATE",
-    "content": "根据你的角色GameRole.DOCTOR和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"vote\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+    "content": "现在是第2天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_4且身份是GameRole.DOCTOR，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 16,
+    "player_id": "ID_5",
+    "role": "Werewolf",
+    "day_count": 2,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第2天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_5且身份是GameRole.WEREWOLF，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 17,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 2,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第2天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_6且身份是GameRole.SEER，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 18,
+    "player_id": "ID_1",
+    "role": "Werewolf",
+    "day_count": 2,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第2天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_1且身份是GameRole.WEREWOLF，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
   },
   {
     "number": 19,
@@ -168,33 +168,186 @@
     "day_count": 2,
     "phase": "DAY",
     "message_type": "PRIVATE",
-    "content": "根据你的角色GameRole.VILLAGER和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"vote\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+    "content": "现在是第2天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_3且身份是GameRole.VILLAGER，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
   },
   {
     "number": 20,
     "player_id": "ID_4",
-    "role": "Werewolf",
+    "role": "Doctor",
     "day_count": 2,
     "phase": "DAY",
     "message_type": "PRIVATE",
-    "content": "根据你的角色GameRole.WEREWOLF和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"vote\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+    "content": "现在是第2天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_4且身份是GameRole.DOCTOR，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
   },
   {
     "number": 21,
     "player_id": "ID_5",
-    "role": "Villager",
-    "day_count": 2,
-    "phase": "DAY",
-    "message_type": "PRIVATE",
-    "content": "根据你的角色GameRole.VILLAGER和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"vote\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
-  },
-  {
-    "number": 22,
-    "player_id": "ID_6",
     "role": "Werewolf",
     "day_count": 2,
     "phase": "DAY",
     "message_type": "PRIVATE",
-    "content": "根据你的角色GameRole.WEREWOLF和已知的游戏对局信息，请投票选择你认为今天应该被投票出局的玩家。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"vote\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+    "content": "现在是第2天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_5且身份是GameRole.WEREWOLF，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
+  },
+  {
+    "number": 22,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 2,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第2天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_6且身份是GameRole.SEER，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
+  },
+  {
+    "number": 23,
+    "player_id": "system",
+    "role": "Host",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PUBLIC",
+    "content": "现在是游戏的第2天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有4名，分别是：['ID_3', 'ID_4', 'ID_5', 'ID_6']"
+  },
+  {
+    "number": 24,
+    "player_id": "ID_5",
+    "role": "Werewolf",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "现在是游戏的第2天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有4名，分别是：['ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第2天的夜晚回合，你应该选择一名玩家进行kill。作为玩家ID_5和一名Werewolf，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"kill\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 25,
+    "player_id": "ID_5",
+    "role": "Werewolf",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "{\n    \"reasoning\": \"现在ID_1已经被村民阵营投票出局，场上只剩下我们这一名狼人（ID_5）和三名其他玩家。我们需要谨慎选择目标。ID_6昨晚查验了ID_1并公开他是狼人，这表明ID_6是预言家，因此优先击杀ID_6对我们最为有利。这样可以削弱村民阵营的关键能力。\",\n    \"action\": \"kill\",\n    \"target\": \"ID_6\"\n}"
+  },
+  {
+    "number": 26,
+    "player_id": "ID_4",
+    "role": "Doctor",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "现在是游戏的第2天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有4名，分别是：['ID_3', 'ID_4', 'ID_5', 'ID_6']\n现在是第2天的夜晚回合，你应该选择一名玩家进行save。作为玩家ID_4和一名Doctor，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"save\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 27,
+    "player_id": "ID_4",
+    "role": "Doctor",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "{\n    \"reasoning\": \"现在游戏进入了第2天夜晚，ID_1已经被投票出局。根据白天的讨论，我们知道ID_5也是狼人，并且他试图误导其他玩家怀疑我（ID_4）。为了保护村民阵营，我需要仔细选择今晚的救治目标。由于ID_6昨晚查验出ID_1是狼人，他的身份可能是预言家，因此狼人可能会试图杀死他以消除威胁。因此，我决定今晚救治ID_6。\",\n    \"action\": \"save\",\n    \"target\": \"ID_6\"\n}"
+  },
+  {
+    "number": 28,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "现在是游戏的第2天，当前游戏阶段是'夜晚'阶段, 当前存活玩家有4名，分别是：['ID_3', 'ID_4', 'ID_5', 'ID_6']\n\n现在是第2天的夜晚回合，你应该选择一名玩家进行see。作为玩家ID_6和一名Seer，你应该先分析当前局势，然后执行一个动作。\n你应该只以下面描述的JSON格式回应。回应格式：\n{\n    \"reasoning\": \"对当前局势的分析\",\n    \"action\": \"see\",\n    \"target\": \"ID_X\"\n}\n确保回应可以被Python的json.loads解析。\n"
+  },
+  {
+    "number": 29,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "{\n    \"reasoning\": \"现在ID_1已经被淘汰，我们知道他是狼人。目前剩下ID_3、ID_4、ID_5和我自己（ID_6）。ID_4声称自己是医生，并且昨晚选择了自救，这与实际情况吻合。而ID_5作为狼人可能会试图伪装成村民，因此我选择查验ID_5以确认他的身份。\",\n    \"action\": \"see\",\n    \"target\": \"ID_5\"\n}"
+  },
+  {
+    "number": 30,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 2,
+    "phase": "NIGHT",
+    "message_type": "PRIVATE",
+    "content": "你在第2天的NIGHT阶段查验的玩家ID_5的角色是Werewolf。"
+  },
+  {
+    "number": 31,
+    "player_id": "system",
+    "role": "Host",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PUBLIC",
+    "content": "\n当前是第3天白天回合，昨夜没有人被杀死。存活玩家有4名，分别是：['ID_3', 'ID_4', 'ID_5', 'ID_6']"
+  },
+  {
+    "number": 32,
+    "player_id": "ID_3",
+    "role": "Villager",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_3且身份是GameRole.VILLAGER，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 33,
+    "player_id": "ID_4",
+    "role": "Doctor",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_4且身份是GameRole.DOCTOR，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 34,
+    "player_id": "ID_5",
+    "role": "Werewolf",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_5且身份是GameRole.WEREWOLF，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 35,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天的白天（DAY）讨论阶段，轮到你发言。作为玩家ID_6且身份是GameRole.SEER，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:\n{\n\"reasoning\": \"仅对自己分析的当前局势推理\", \n\"statement\": \"向所有其他玩家发表的言论\"\n}\n确保回应可以被Python的json.loads解析。"
+  },
+  {
+    "number": 36,
+    "player_id": "ID_3",
+    "role": "Villager",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_3且身份是GameRole.VILLAGER，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
+  },
+  {
+    "number": 37,
+    "player_id": "ID_4",
+    "role": "Doctor",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_4且身份是GameRole.DOCTOR，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
+  },
+  {
+    "number": 38,
+    "player_id": "ID_5",
+    "role": "Werewolf",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_5且身份是GameRole.WEREWOLF，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
+  },
+  {
+    "number": 39,
+    "player_id": "ID_6",
+    "role": "Seer",
+    "day_count": 3,
+    "phase": "DAY",
+    "message_type": "PRIVATE",
+    "content": "现在是第3天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家ID_6且身份是GameRole.SEER，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:\n{\n\"reasoning\": \"对当前局势的推理\", \n\"\"action\":\": \"vote / no vote\",\n\"target\": \"ID_X / None\"\n}\n确保回应可以被Python的json.loads解析。\n"
   }
 ]
