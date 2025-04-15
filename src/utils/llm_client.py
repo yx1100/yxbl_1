@@ -3,7 +3,7 @@ from openai import OpenAI
 
 
 class LLMClient:
-    def __init__(self, api_key=None, model="qwen-plus"):
+    def __init__(self, api_key=None, model="qwen-max"):
         """
         初始化 LLM 客户端
 
