@@ -3,13 +3,13 @@ from openai import OpenAI
 
 
 class LLMClient:
-    def __init__(self, api_key=None, model="qwen-max"):
+    def __init__(self, api_key=None, model="qwen-max-latest"):
         """
         初始化 LLM 客户端
 
         Args:
             api_key: API 密钥，默认从环境变量获取
-            model: 使用的模型名称，默认是 qwen-plus
+            model: 使用的模型名称，默认是 qwen-plus（qwen-max-latest/qwq-plus-latest/qwen-plus）
         """
 
         # 如果没有提供 API 密钥，尝试从环境变量获取

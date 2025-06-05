@@ -87,6 +87,7 @@ class Doctor(Role):
             message=prompt)
         doctor_response = doctor.client.get_response(
             messages=doctor.messages)['content']
+        print("医生投票的思考与决定: "+doctor_response)
         vote_target = self.extract_target(doctor_response)
         return vote_target
 

@@ -213,7 +213,7 @@ class Werewolf(Role):
             message=prompt)
         werewolf_response = werewolf.client.get_response(
             messages=werewolf.messages)['content']
-        print("狼人投票的回复: "+werewolf_response)
+        print("狼人投票的思考与决定: "+werewolf_response)
         vote_target = self.extract_target(werewolf_response)
         return vote_target
 

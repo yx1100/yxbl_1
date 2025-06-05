@@ -68,11 +68,15 @@ class Role:
             # 检查target字段是否存在
             if 'target' in data:
                 target = data['target']
-
-                # 使用正则表达式提取"ID_X"部分
-                match = re.search(r'(ID_\d+)', target)
-                if match:
-                    return match.group(1)
+                
+                # 如果target字段为空或为"null"，返回"No Target"
+                if target is None or target == "" or target == "null":
+                    target = "No Target"
+                else:
+                    # 使用正则表达式提取"ID_X"部分
+                    match = re.search(r'(ID_\d+)', target)
+                    if match:
+                        return match.group(1)
                 return target  # 如果没有匹配到ID格式，直接返回target字段内容
             else:
                 # 如果没有找到目标，尝试从action字段提取
@@ -80,7 +84,6 @@ class Role:
                     match = re.search(r'(ID_\d+)', data['action'])
                     if match:
                         return match.group(1)
-                    
                 print("没有找到目标，请检查回复格式！")
                 return None
         except json.JSONDecodeError:

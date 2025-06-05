@@ -97,6 +97,7 @@ class Seer(Role):
             message=prompt)
         seer_response = seer.client.get_response(
             messages=seer.messages)['content']
+        print("预言家投票的思考与决定: "+seer_response)
         vote_target = self.extract_target(seer_response)
         return vote_target
 

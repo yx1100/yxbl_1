@@ -66,6 +66,7 @@ class Villager(Role):
             message=prompt)
         villager_response = villager.client.get_response(
             messages=villager.messages)['content']
+        print("村民投票的思考与决定: " + villager_response) 
         vote_target = self.extract_target(villager_response)
         return vote_target
 
