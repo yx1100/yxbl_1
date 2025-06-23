@@ -64,7 +64,7 @@ class Werewolf(Role):
 
             # 解析狼人1的目标
             wolf1_target = self.extract_target(werewolf_1_response)
-            print(f"狼人1号（{werewolf_1_id}）想要杀害: {wolf1_target}")
+            print(f"狼人1号({werewolf_1_id})想要杀害: {wolf1_target}")
 
             # 初始化变量
             consensus = False
@@ -88,7 +88,7 @@ class Werewolf(Role):
                 # 狼人2回应
                 werewolf_2_response = werewolf_2.client.get_response(
                     messages=werewolf_2.messages)['content']
-                print(f"狼人2的回复: {werewolf_2_response}")
+                print(f"狼人2号({werewolf_2_id})的回复: {werewolf_2_response}")
                 self._add_message(
                     player_id=werewolf_2_id,
                     message_type=MessageType.PRIVATE,

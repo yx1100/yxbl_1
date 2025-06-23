@@ -45,7 +45,7 @@ class Seer(Role):
         # 预言家夜晚阶段回复
         seer_response = seer.client.get_response(
             messages=self.seer_messages)['content']
-        print("预言家的回复: "+seer_response)
+        print(f"预言家({seer_id})的回复: {seer_response}")
         self._add_message(player_id=seer_id,
                           message_type=MessageType.PRIVATE,
                           message_role=MessageRole.ASSISTANT,
@@ -53,7 +53,7 @@ class Seer(Role):
 
         # 预言家选择查验的玩家
         check_player = self.extract_target(seer_response)
-        print(f"预言家选择查验: {check_player}")
+        print(f"预言家({seer_id})选择查验: {check_player}")
         for player in self.alive_players:
             if player.player_id == check_player:
                 check_player_role = player.role.value
@@ -62,7 +62,7 @@ class Seer(Role):
                           message_type=MessageType.PRIVATE,
                           message_role=MessageRole.USER,
                           message=prompt)
-        print(f'预言家私人消息：{prompt}')
+        print(f'预言家({seer_id})的私人消息：{prompt}')
 
         return check_player
 

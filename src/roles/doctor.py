@@ -44,7 +44,7 @@ class Doctor(Role):
         # 医生夜晚阶段回复
         doctor_response = doctor.client.get_response(
             messages=doctor.messages)['content']
-        print("医生的回复: "+doctor_response)
+        print(f"医生({doctor_id})的回复: {doctor_response}")
         self._add_message(player_id=doctor_id,
                           message_type=MessageType.PRIVATE,
                           message_role=MessageRole.ASSISTANT,
@@ -52,7 +52,7 @@ class Doctor(Role):
 
         # 医生选择救助的玩家
         save_player = self.extract_target(doctor_response)
-        print(f"医生选择救助: {save_player}")
+        print(f"医生({doctor_id})选择救助: {save_player}")
 
         return save_player
 
@@ -87,7 +87,7 @@ class Doctor(Role):
             message=prompt)
         doctor_response = doctor.client.get_response(
             messages=doctor.messages)['content']
-        print("医生投票的思考与决定: "+doctor_response)
+        print(f"医生({player_id})投票的思考与决定: "+doctor_response)
         vote_target = self.extract_target(doctor_response)
         return vote_target
 
