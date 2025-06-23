@@ -1,4 +1,5 @@
 from enum import Enum
+from tkinter import END
 
 class MessageRole(Enum):
     SYSTEM = "system"
@@ -7,6 +8,7 @@ class MessageRole(Enum):
 
 class GamePhase(Enum):
     INIT = "INIT"
+    END = "END"
     NIGHT = "NIGHT"
     DAY = "DAY"
     VOTE = "VOTE"

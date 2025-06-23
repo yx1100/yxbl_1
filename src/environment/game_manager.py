@@ -392,10 +392,31 @@ class GameManager:
         # 如果狼人数量为0，游戏结束
         if werewolf_count == 0:
             print("村民胜利！")
+            
+            self.messages_manager.add_message(
+            player_id="system",
+            role=GameRole.HOST,
+            day_count=self.day_count,
+            phase=GamePhase.END,
+            message_type=MessageType.PUBLIC,
+            content="村民胜利！游戏结束。"
+            )
+
             return True
+        
         # 如果狼人数量等于村民阵营的数量，游戏结束
         elif werewolf_count == villager_count:
             print("狼人胜利！")
+
+            self.messages_manager.add_message(
+            player_id="system",
+            role=GameRole.HOST,
+            day_count=0,
+            phase=GamePhase.INIT,
+            message_type=MessageType.PUBLIC,
+            content="狼人胜利！游戏结束。"
+            )
+
             return True
         # 其他情况，游戏继续
         return False
