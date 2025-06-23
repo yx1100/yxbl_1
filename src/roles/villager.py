@@ -72,7 +72,7 @@ class Villager(Role):
 
     def _add_message(self, player_id, message_type, message_role, message):
         """
-        添加消息到医生的消息列表
+        添加消息到村民的消息列表
         :param message: 消息内容
         """
         villager = next(
