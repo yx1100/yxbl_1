@@ -1,4 +1,3 @@
-import re
 from src.utils.config import LANGUAGE, PLAYER_NUMS
 from src.utils.game_enum import GameRole, GamePhase
 
@@ -128,7 +127,7 @@ Ensure the response can be parsed by Python json.loads"""
             return response_format_prompt_cn
 
     def get_day_discuss_prompt(self, day, id, role):
-        prompt = f"""现在是第{day}天的白天（DAY）讨论阶段，轮到你发言。作为玩家{id}且身份是{role}，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:
+        prompt = f"""现在是第{day}天的白天（DAY）讨论阶段，轮到你发言。作为玩家{id}且身份是{role.value}，在向其他玩家发言前，你应当先自行分析当前局势，然后向所有其他玩家发表意见。请严格按以下 JSON 格式回应:
 {{
 "reasoning": "仅对自己分析的当前局势推理", 
 "statement": "向所有其他玩家发表的言论"
@@ -137,7 +136,7 @@ Ensure the response can be parsed by Python json.loads"""
         return prompt
 
     def get_vote_prompt(self, day, id, role):
-        prompt = f"""现在是第{day}天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家{id}且身份是{role}，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:
+        prompt = f"""现在是第{day}天投票(VOTE)阶段。你应该投票给一名玩家,或者不投票,以最大化狼人的利益(对于狼人阵营（WEREWOLVES）来说)/你应该投票给最有可能是狼人的一名玩家,或者不投票(对于村民阵营(VILLAGERS)来说)。作为玩家{id}且身份是{role.value}，你应当先分析当前局势，然后选择一个动作：'no vote'/'vote'。请严格按以下JSON 格式回应:
 {{
 "reasoning": "对当前局势的推理", 
 ""action":": "vote / no vote",
