@@ -196,6 +196,11 @@ class Werewolf(Role):
             message=prompt)
         werewolf_response = werewolf.client.get_response(
             messages=werewolf.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=werewolf_response)
         return werewolf_response
 
     def vote(self, player_id):
@@ -213,6 +218,11 @@ class Werewolf(Role):
             message=prompt)
         werewolf_response = werewolf.client.get_response(
             messages=werewolf.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=werewolf_response)
         print("狼人投票的思考与决定: "+werewolf_response)
         vote_target = self.extract_target(werewolf_response)
         return vote_target

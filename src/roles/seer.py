@@ -80,6 +80,11 @@ class Seer(Role):
             message=prompt)
         seer_response = seer.client.get_response(
             messages=seer.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=seer_response)
         return seer_response
 
     def vote(self, player_id):
@@ -97,6 +102,11 @@ class Seer(Role):
             message=prompt)
         seer_response = seer.client.get_response(
             messages=seer.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=seer_response)
         print("预言家投票的思考与决定: "+seer_response)
         vote_target = self.extract_target(seer_response)
         return vote_target

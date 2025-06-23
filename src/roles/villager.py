@@ -49,6 +49,11 @@ class Villager(Role):
             message=prompt)
         villager_response = villager.client.get_response(
             messages=villager.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=villager_response)
         return villager_response
 
     def vote(self, player_id):
@@ -66,6 +71,11 @@ class Villager(Role):
             message=prompt)
         villager_response = villager.client.get_response(
             messages=villager.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=villager_response)
         print(f"村民{player_id}投票的思考与决定: {villager_response}") 
         vote_target = self.extract_target(villager_response)
         return vote_target

@@ -70,6 +70,11 @@ class Doctor(Role):
             message=prompt)
         doctor_response = doctor.client.get_response(
             messages=doctor.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=doctor_response)
         return doctor_response
     
     def vote(self, player_id):
@@ -87,6 +92,11 @@ class Doctor(Role):
             message=prompt)
         doctor_response = doctor.client.get_response(
             messages=doctor.messages)['content']
+        self._add_message(
+            player_id=player_id,
+            message_type=MessageType.PRIVATE,
+            message_role=MessageRole.USER,
+            message=doctor_response)
         print(f"医生({player_id})投票的思考与决定: "+doctor_response)
         vote_target = self.extract_target(doctor_response)
         return vote_target
