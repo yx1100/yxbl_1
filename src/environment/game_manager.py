@@ -362,14 +362,23 @@ class GameManager:
             tie_players_str = ", ".join(most_voted_players)
             print(f"主持人：出现平票情况，玩家 {tie_players_str} 得票数相同。")
             # 根据规则，可能需要重新投票或无人出局
-            prompt = f"第{self.day_count}投票（VOTE）阶段出现平票情况，玩家 {tie_players_str} 得票数相同。"
+            prompt = f"第{self.day_count}投票（VOTE）阶段出现平票情况，玩家 {tie_players_str} 得票数相同。请为自己进行辩护。"
             # 这里可以添加处理平票的逻辑，例如再次投票
             for id in most_voted_players:  # 从平票的id list中遍历提取出每个id元素
                 for player in self.alive_players:  # 遍历存活玩家列表
                     if player.player_id == id:  # 如果存活玩家的ID和平票的ID相同
-                        defense_content = player.client.get_response(
-                            messages=prompt)['content']
-                        print(f"Player {player.player_id}({player.role.value}) 辩护：{defense_content}")
+                        # 将辩护提示添加到玩家的消息列表中
+                        player.add_message(role=MessageRole.USER, content=prompt)
+                        # 获取LLM响应
+                        response = player.client.get_response(messages=player.messages)
+                        if response.get('success', False):
+                            defense_content = response['content']
+                            print(f"Player {player.player_id}({player.role.value}) 辩护：{defense_content}")
+                            # 将AI的回复添加到消息列表中
+                            player.add_message(role=MessageRole.ASSISTANT, content=defense_content)
+                        else:
+                            error_msg = response.get('error', '未知错误')
+                            print(f"Player {player.player_id}({player.role.value}) 辩护失败：{error_msg}")
                         break
 
         print("投票阶段结束。")
