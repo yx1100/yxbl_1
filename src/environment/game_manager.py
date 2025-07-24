@@ -1,7 +1,6 @@
 import random
 from collections import Counter
 
-from prompt_toolkit import prompt
 from src.utils.config import PLAYER_NUMS
 from src.utils.config import MESSAGES_FILE_PATH
 from src.agents.llm_agent import LLMAgent
