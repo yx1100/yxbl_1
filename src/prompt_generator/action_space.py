@@ -52,9 +52,12 @@ def get_action_with_target(action: ActionIntent, target_player_id: int) -> Tuple
     """
     # 检查动作是否需要目标
     if action not in [
-        ActionIntent.ACCUSE_PLAYER, ActionIntent.DEFEND_PLAYER,
-        ActionIntent.QUESTION_PLAYER, ActionIntent.VOTE_PLAYER,
-        ActionIntent.NIGHT_ACTION_KILL, ActionIntent.NIGHT_ACTION_HEAL,
+        ActionIntent.ACCUSE_PLAYER, 
+        ActionIntent.DEFEND_PLAYER,
+        ActionIntent.QUESTION_PLAYER, 
+        ActionIntent.VOTE_PLAYER,
+        ActionIntent.NIGHT_ACTION_KILL, 
+        ActionIntent.NIGHT_ACTION_HEAL,
         ActionIntent.NIGHT_ACTION_CHECK
     ]:
         raise ValueError(f"动作 {action.name} 不需要目标玩家。")
