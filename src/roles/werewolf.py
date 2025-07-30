@@ -25,6 +25,13 @@ class Werewolf(Role):
             raise RuntimeError("No alive werewolf players found.")
 
         self.werewolf_nums = len(self.werewolf_players)  # 获取狼人数量
+        
+        # Initialize werewolf attributes
+        self.werewolf_1 = None
+        self.werewolf_2 = None
+        self.werewolf_1_id = None
+        self.werewolf_2_id = None
+        
         for i, werewolf in enumerate(self.werewolf_players):
             setattr(self, f"werewolf_{i+1}", werewolf)
             setattr(self, f"werewolf_{i+1}_id", werewolf.player_id)
@@ -36,6 +43,9 @@ class Werewolf(Role):
         if self.werewolf_nums == 2:
             werewolf_1 = self.werewolf_1  # Agent类型
             werewolf_2 = self.werewolf_2  # Agent类型
+
+            if werewolf_1 is None or werewolf_2 is None:
+                raise RuntimeError("Expected 2 werewolves but one or both are None")
 
             werewolf_1_id = self.werewolf_1_id  # str类型
             werewolf_2_id = self.werewolf_2_id  # str类型
@@ -111,6 +121,7 @@ class Werewolf(Role):
                     # 狼人1回应狼人2的目标
                     self._add_message(
                         player_id=werewolf_1_id,
+                        message_type=MessageType.PRIVATE,
                         message_role=MessageRole.USER,
                         message=f"你原本决定杀害 {wolf1_target}，但你的同伴狼人{werewolf_2_id}不同意，他/她想要杀害 {wolf2_target}，理由是：{werewolf_2_response}。你同意这个新决定吗？如果同意，请说明你的理由；如果不同意，请再次分析并坚持你的目标或提出新的目标。")
                     print(f"狼人1号Messages：{werewolf_1.messages}")
@@ -144,15 +155,23 @@ class Werewolf(Role):
                 print(f"狼人达成共识，决定杀害: {kill_player}")
             else:
                 kill_player = None
-                print("狼人无法达成共识，今晚没有人被杀害")
-
-            return kill_player
         # 只有一个狼人
         elif self.werewolf_nums == 1:
             # 一个狼人直接决定
             werewolf = self.werewolf_1  # Agent类型
+            
+            if werewolf is None:
+                raise RuntimeError("Expected 1 werewolf but werewolf_1 is None")
+                
             werewolf_id = self.werewolf_1_id  # str类型
-
+            # 一个狼人直接决定
+            werewolf = self.werewolf_1  # Agent类型
+            
+            if werewolf is None:
+                raise RuntimeError("Expected 1 werewolf but werewolf_1 is None")
+                
+            werewolf_id = self.werewolf_1_id  # str类型
+    
             # 添加夜晚阶段提示
             werewolf_night_prompt = GameRulePrompt().get_night_action_prompt(
                 role=self.role_name,
@@ -163,7 +182,7 @@ class Werewolf(Role):
                 message_type=MessageType.PRIVATE,
                 message_role=MessageRole.USER,
                 message=f"{phase_prompt}\n{werewolf_night_prompt}")
-
+    
             # 唯一狼人做决定
             werewolf_response = werewolf.client.get_response(
                 messages=werewolf.messages)['content']
@@ -230,6 +249,8 @@ class Werewolf(Role):
     def _add_message(self, player_id, message_type, message_role, message):
         werewolf = next(
             (p for p in self.alive_players if p.player_id == player_id), None)
+        if werewolf is None:
+            raise ValueError(f"Player with ID {player_id} not found in alive players")
         werewolf.add_message(role=message_role, content=message)
 
         self.messages_manager.add_message(

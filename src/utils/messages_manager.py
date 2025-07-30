@@ -1,7 +1,7 @@
 import json
 import os
 from  src.utils.game_enum import GameRole, GamePhase, MessageType
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 class Message:
@@ -47,7 +47,7 @@ class Message:
 
 
 class MessagesManager:
-    def __init__(self, file_path: str = None):
+    def __init__(self, file_path: Optional[str] = None):
         self.messages: List[Message] = []
         self.next_message_number = 1
         self.file_path = file_path
@@ -63,7 +63,7 @@ class MessagesManager:
                     phase: str,
                     message_type: str,
                     content: str,
-                    file_path: str = None) -> Message:
+                    file_path: Optional[str] = None) -> Message:
         """添加一条新消息并自动保存到文件"""
         # 获取保存路径
         save_path = file_path or self.file_path
@@ -75,9 +75,9 @@ class MessagesManager:
         message = Message(
             number=self.next_message_number,
             player_id=player_id,
-            role=role,
-            phase=phase,
-            message_type=message_type,
+            role=GameRole(role),
+            phase=GamePhase(phase),
+            message_type=MessageType(message_type),
             content=content,
             day_count=day_count
         )

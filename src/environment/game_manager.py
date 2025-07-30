@@ -30,10 +30,10 @@ class GameManager:
             f"系统信息：本场游戏玩家角色分别是：{', '.join([role.value for role in self.init_players_roles])}。\n======================\n")
         self.messages_manager.add_message(
             player_id="system",
-            role=GameRole.HOST,
+            role=GameRole.HOST.value,
             day_count=0,
-            phase=GamePhase.INIT,
-            message_type=MessageType.PUBLIC,
+            phase=GamePhase.INIT.value,
+            message_type=MessageType.PUBLIC.value,
             content=prompt
         )  # 这里的信息只加入了game messages，没有加入到玩家的上下文消息中
 
@@ -67,17 +67,17 @@ class GameManager:
 
         # 1. 获取夜晚阶段的提示词
         phase_prompt = GameRulePrompt().get_phase_prompt(day_count=self.day_count,
-                                                         phase=GamePhase.NIGHT,
+                                                         phase=GamePhase.NIGHT.value,
                                                          alive_players=alive_players_id)
         print(f"主 持 人：{phase_prompt}")
 
         self.messages_manager.add_message(
             player_id="system",
-            role=GameRole.HOST,
+            role=GameRole.HOST.value,
             day_count=self.day_count,
-            phase=GamePhase.NIGHT,
-            message_type=MessageType.PUBLIC,
-            content=phase_prompt
+            phase=GamePhase.NIGHT.value,
+            message_type=MessageType.PUBLIC.value,
+            content=phase_prompt or ""
         )  # 这里的提示词只加入了game messages，后面在角色类方法中加入到玩家的上下文消息中
 
         print(f"主 持 人：当前的存活玩家有{', '.join(alive_players_id)}。")
@@ -91,7 +91,7 @@ class GameManager:
         kill_player = Werewolf(
             alive_players=self.alive_players,
             day_count=self.day_count,
-            phase=GamePhase.NIGHT,
+            phase=GamePhase.NIGHT.value,
             messages_manager=self.messages_manager
         ).do_action(phase_prompt)
 
@@ -102,7 +102,7 @@ class GameManager:
             save_player = Doctor(
                 alive_players=self.alive_players,
                 day_count=self.day_count,
-                phase=GamePhase.NIGHT,
+                phase=GamePhase.NIGHT.value,
                 messages_manager=self.messages_manager
             ).do_action(phase_prompt)
         else:
@@ -115,7 +115,7 @@ class GameManager:
             check_player = Seer(
                 alive_players=self.alive_players,
                 day_count=self.day_count,
-                phase=GamePhase.NIGHT,
+                phase=GamePhase.NIGHT.value,
                 messages_manager=self.messages_manager
             ).do_action(phase_prompt)
         else:
@@ -175,10 +175,10 @@ class GameManager:
             content=last_night_info_prompt)
         self.messages_manager.add_message(
             player_id="system",
-            role=GameRole.HOST,
+            role=GameRole.HOST.value,
             day_count=self.day_count,
-            phase=GamePhase.DAY,
-            message_type=MessageType.PUBLIC,
+            phase=GamePhase.DAY.value,
+            message_type=MessageType.PUBLIC.value,
             content=last_night_info_prompt
         )
 
@@ -197,7 +197,7 @@ class GameManager:
                 discussion = Werewolf(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).discuss(player.player_id)
                 print(
@@ -212,7 +212,7 @@ class GameManager:
                 discussion = Doctor(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).discuss(player.player_id)
                 print(
@@ -226,7 +226,7 @@ class GameManager:
                 discussion = Seer(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).discuss(player.player_id)
                 print(
@@ -240,7 +240,7 @@ class GameManager:
                 discussion = Villager(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).discuss(player.player_id)
                 print(
@@ -268,7 +268,7 @@ class GameManager:
                 vote = Werewolf(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).vote(player.player_id)
                 print(
@@ -282,7 +282,7 @@ class GameManager:
                 vote = Doctor(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).vote(player.player_id)
                 print(
@@ -296,7 +296,7 @@ class GameManager:
                 vote = Seer(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).vote(player.player_id)
                 print(
@@ -310,7 +310,7 @@ class GameManager:
                 vote = Villager(
                     alive_players=self.alive_players,
                     day_count=self.day_count,
-                    phase=GamePhase.DAY,
+                    phase=GamePhase.DAY.value,
                     messages_manager=self.messages_manager
                 ).vote(player.player_id)
                 print(
@@ -403,10 +403,10 @@ class GameManager:
             
             self.messages_manager.add_message(
             player_id="system",
-            role=GameRole.HOST,
+            role=GameRole.HOST.value,
             day_count=self.day_count,
-            phase=GamePhase.END,
-            message_type=MessageType.PUBLIC,
+            phase=GamePhase.END.value,
+            message_type=MessageType.PUBLIC.value,
             content="村民胜利！游戏结束。"
             )
 
@@ -418,10 +418,10 @@ class GameManager:
 
             self.messages_manager.add_message(
             player_id="system",
-            role=GameRole.HOST,
+            role=GameRole.HOST.value,
             day_count=0,
-            phase=GamePhase.INIT,
-            message_type=MessageType.PUBLIC,
+            phase=GamePhase.INIT.value,
+            message_type=MessageType.PUBLIC.value,
             content="狼人胜利！游戏结束。"
             )
 

@@ -15,10 +15,14 @@ class Doctor(Role):
         self.current_phase = phase  # 获取当前阶段
 
         # 获取当前存活玩家中的医生玩家
-        self.doctor = []
+        self.doctor = None
         if self.alive_players is not None:
-            self.doctor = [
-                player for player in self.alive_players if player.role == self.role_name][0]
+            doctors = [
+                player for player in self.alive_players if player.role == self.role_name]
+            if doctors:
+                self.doctor = doctors[0]
+            else:
+                raise RuntimeError("医生已经死了，无法进行操作。")
         else:
             raise RuntimeError("医生已经死了，无法进行操作。")
 
@@ -42,6 +46,8 @@ class Doctor(Role):
         # print(f"医生Messages：{self.doctor_messages}")
 
         # 医生夜晚阶段回复
+        if doctor is None:
+            raise RuntimeError("医生已经死了，无法进行操作。")
         doctor_response = doctor.client.get_response(
             messages=doctor.messages)['content']
         print(f"医生({doctor_id})的回复: {doctor_response}")
@@ -106,7 +112,8 @@ class Doctor(Role):
         添加消息到医生的消息列表
         :param message: 消息内容
         """
-        self.doctor.add_message(role=message_role, content=message)
+        if self.doctor is not None:
+            self.doctor.add_message(role=message_role, content=message)
         self.messages_manager.add_message(
             player_id=player_id,
             role=self.role_name,

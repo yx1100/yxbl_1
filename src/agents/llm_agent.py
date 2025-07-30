@@ -47,7 +47,3 @@ class LLMAgent(BaseAgent):
         获取LLM messages数组
         """
         return self.messages
-
-# test
-# agent = LLMAgent(player_id="ID_1", role="werewolf")
-# print(agent)

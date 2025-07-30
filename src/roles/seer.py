@@ -15,10 +15,14 @@ class Seer(Role):
         self.current_phase = phase  # 获取当前阶段
 
         # 获取当前存活玩家中的预言家玩家
-        self.seer = []
+        self.seer = None
         if self.alive_players is not None:
-            self.seer = [
-                player for player in self.alive_players if player.role == self.role_name][0]
+            seer_players = [
+                player for player in self.alive_players if player.role == self.role_name]
+            if seer_players:
+                self.seer = seer_players[0]
+            else:
+                raise RuntimeError("预言家已经死了，无法进行操作。")
         else:
             raise RuntimeError("预言家已经死了，无法进行操作。")
 
@@ -43,6 +47,8 @@ class Seer(Role):
         # print(f"预言家Messages：{self.seer_messages}")
 
         # 预言家夜晚阶段回复
+        if seer is None:
+            raise RuntimeError("预言家已经死了，无法进行操作。")
         seer_response = seer.client.get_response(
             messages=self.seer_messages)['content']
         print(f"预言家({seer_id})的回复: {seer_response}")
@@ -116,7 +122,8 @@ class Seer(Role):
         添加消息到预言家的消息列表
         :param message: 消息内容
         """
-        self.seer.add_message(role=message_role, content=message)
+        if self.seer is not None:
+            self.seer.add_message(role=message_role, content=message)
         self.messages_manager.add_message(
             player_id=player_id,
             role=self.role_name,

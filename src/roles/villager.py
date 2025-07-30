@@ -87,6 +87,9 @@ class Villager(Role):
         """
         villager = next(
             (p for p in self.alive_players if p.player_id == player_id), None)
+        if not villager:
+            raise ValueError(
+                f"Player with ID {player_id} not found in alive players")
         villager.add_message(role=message_role, content=message)
         
         self.messages_manager.add_message(
